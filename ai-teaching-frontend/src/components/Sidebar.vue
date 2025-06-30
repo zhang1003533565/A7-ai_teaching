@@ -127,7 +127,45 @@ const menuGroups = reactive([
         key: 'courses',
         name: '我的课程',
         icon: 'fas fa-book',
-        path: '/courses'
+        expanded: false,
+        children: [
+          {
+            key: 'course-overview',
+            name: '课程概览',
+            icon: 'fas fa-tachometer-alt',
+            path: '/dashboard/courses/overview'
+          },
+          {
+            key: 'course-manage',
+            name: '课程管理',
+            icon: 'fas fa-book-open',
+            path: '/dashboard/courses/manage'
+          },
+          {
+            key: 'course-content',
+            name: '课程内容',
+            icon: 'fas fa-file-text',
+            path: '/dashboard/courses/content'
+          },
+          {
+            key: 'course-schedule',
+            name: '课程安排',
+            icon: 'fas fa-calendar-alt',
+            path: '/dashboard/courses/schedule'
+          },
+          {
+            key: 'course-students',
+            name: '学生管理',
+            icon: 'fas fa-user-graduate',
+            path: '/dashboard/courses/students'
+          },
+          {
+            key: 'course-resources',
+            name: '课程资源',
+            icon: 'fas fa-folder-open',
+            path: '/dashboard/courses/resources'
+          }
+        ]
       },
       {
         key: 'homework',

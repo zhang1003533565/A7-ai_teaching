@@ -34,6 +34,10 @@ const routes = [
       },
       // 权限管理子路由
       {
+        path: 'permission',
+        redirect: 'permission/overview'
+      },
+      {
         path: 'permission/overview',
         name: 'PermissionOverview',
         component: PermissionOverview
@@ -58,7 +62,47 @@ const routes = [
         name: 'PermissionUserManagement',
         component: PermissionUserManagement
       },
+      // 课程管理子路由
+      {
+        path: 'courses',
+        redirect: 'courses/overview'
+      },
+      {
+        path: 'courses/overview',
+        name: 'CoursesOverview',
+        component: () => import('../views/courses/CoursesOverview.vue')
+      },
+      {
+        path: 'courses/manage',
+        name: 'CoursesManage',
+        component: () => import('../views/courses/CoursesManage.vue')
+      },
+      {
+        path: 'courses/content',
+        name: 'CoursesContent',
+        component: () => import('../views/courses/CoursesContent.vue')
+      },
+      {
+        path: 'courses/schedule',
+        name: 'CoursesSchedule',
+        component: () => import('../views/courses/CoursesSchedule.vue')
+      },
+      {
+        path: 'courses/students',
+        name: 'CoursesStudents',
+        component: () => import('../views/courses/CoursesStudents.vue')
+      },
+      {
+        path: 'courses/resources',
+        name: 'CoursesResources',
+        component: () => import('../views/courses/CoursesResources.vue')
+      },
+      
       // 个人设置子路由
+      {
+        path: 'personal',
+        redirect: 'personal/profile'
+      },
       {
         path: 'personal/profile',
         name: 'PersonalProfileSettings',
@@ -86,6 +130,10 @@ const routes = [
       },
       
       // 系统设置子路由
+      {
+        path: 'system-settings',
+        redirect: 'system-settings/basic'
+      },
       {
         path: 'system-settings/basic',
         name: 'BasicSettings',
