@@ -8,7 +8,6 @@ import com.example.aiteaching.service.UserService;
 import com.example.aiteaching.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,9 +26,8 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("用户不存在");
         }
 
-        // 2. 密码校验（这里使用MD5加密，实际项目中应该使用更安全的加密方式）
-        String encryptedPassword = DigestUtils.md5DigestAsHex(request.getPassword().getBytes());
-        if (!user.getPassword().equals(encryptedPassword)) {
+        // 2. 密码校验（明文比较）
+        if (!user.getPassword().equals(request.getPassword())) {
             throw new RuntimeException("密码错误");
         }
 
@@ -39,7 +37,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 4. 生成token（这里简单实现，实际项目中应该使用JWT等方案）
-        String token = DigestUtils.md5DigestAsHex((user.getUsername() + System.currentTimeMillis()).getBytes());
+        String token = "token_" + user.getUsername() + "_" + System.currentTimeMillis();
 
         // 5. 返回登录响应
         return LoginResponse.builder()

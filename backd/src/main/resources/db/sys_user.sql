@@ -17,4 +17,4 @@ CREATE TABLE IF NOT EXISTS `sys_user` (
 
 -- 插入一个测试管理员账号
 INSERT INTO `sys_user` (`username`, `password`, `real_name`, `role`, `status`)
-VALUES ('admin', 'e10adc3949ba59abbe56e057f20f883e', '管理员', 'admin', 1); 
+VALUES ('admin', '123456', '管理员', 'admin', 1); 

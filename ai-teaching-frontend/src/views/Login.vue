@@ -171,7 +171,6 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue";
 import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
 import { login } from '../api/user';
 
 const router = useRouter();
@@ -248,7 +247,7 @@ const handleLogin = async () => {
       localStorage.removeItem('rememberedAccount');
     }
 
-    ElMessage.success('登录成功');
+    console.log('登录成功');
     // 跳转到首页
     router.push('/dashboard');
   } catch (error) {
