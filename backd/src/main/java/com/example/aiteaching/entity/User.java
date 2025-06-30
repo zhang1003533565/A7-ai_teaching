@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -40,4 +41,10 @@ public class User {
     
     @TableLogic
     private Integer isDeleted;
+    
+    /**
+     * 用户角色列表（非数据库字段）
+     */
+    @TableField(exist = false)
+    private List<Role> roles;
 } 

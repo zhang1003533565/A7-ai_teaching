@@ -21,4 +21,7 @@ CREATE TABLE IF NOT EXISTS `sys_user` (
 
 -- 插入一条测试数据
 INSERT INTO `sys_user` (`username`, `password`, `role`, `real_name`) 
-VALUES ('admin', '123456', 'ADMIN', '管理员'); 
+VALUES ('admin', '123456', 'ADMIN', '管理员');
+
+-- 导入角色权限系统
+SOURCE sys_role.sql; 

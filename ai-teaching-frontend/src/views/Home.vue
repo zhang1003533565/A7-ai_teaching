@@ -18,6 +18,14 @@
             <h1 class="ml-3 text-xl font-bold text-gray-800">智能教学系统</h1>
           </div>
   
+          <!-- 侧边栏切换按钮 -->
+          <button 
+            @click="toggleSidebar"
+            class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <i class="fas fa-bars text-gray-600"></i>
+          </button>
+
           <!-- 搜索框 -->
           <div class="flex-1 max-w-xl mx-8">
             <div class="relative">
@@ -96,108 +104,33 @@
       </header>
   
       <div class="flex pt-16">
-        <!-- 左侧菜单栏 -->
-        <aside
-          class="w-64 bg-white shadow-sm h-[calc(100vh-4rem)] fixed left-0 overflow-y-auto"
-        >
-          <nav class="py-4">
-            <div class="px-4 py-2">
-              <div
-                class="flex items-center text-gray-600 hover:text-blue-600 cursor-pointer"
-              >
-                <i class="fas fa-home w-5 text-center"></i>
-                <span class="ml-3 text-sm font-medium">首页</span>
-              </div>
-            </div>
-  
-            <div class="mt-2">
-              <div
-                class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-              >
-                教学管理
-              </div>
-              <div class="px-4 py-2">
-                <div class="flex items-center text-blue-600 cursor-pointer">
-                  <i class="fas fa-book w-5 text-center"></i>
-                  <span class="ml-3 text-sm font-medium">我的课程</span>
-                </div>
-              </div>
-              <div class="px-4 py-2">
-                <div
-                  class="flex items-center text-gray-600 hover:text-blue-600 cursor-pointer"
-                >
-                  <i class="fas fa-tasks w-5 text-center"></i>
-                  <span class="ml-3 text-sm font-medium">作业管理</span>
-                </div>
-              </div>
-              <div class="px-4 py-2">
-                <div
-                  class="flex items-center text-gray-600 hover:text-blue-600 cursor-pointer"
-                >
-                  <i class="fas fa-chart-bar w-5 text-center"></i>
-                  <span class="ml-3 text-sm font-medium">学情分析</span>
-                </div>
-              </div>
-            </div>
-  
-            <div class="mt-2">
-              <div
-                class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-              >
-                资源中心
-              </div>
-              <div class="px-4 py-2">
-                <div
-                  class="flex items-center text-gray-600 hover:text-blue-600 cursor-pointer"
-                >
-                  <i class="fas fa-file-alt w-5 text-center"></i>
-                  <span class="ml-3 text-sm font-medium">教学资源</span>
-                </div>
-              </div>
-              <div class="px-4 py-2">
-                <div
-                  class="flex items-center text-gray-600 hover:text-blue-600 cursor-pointer"
-                >
-                  <i class="fas fa-question-circle w-5 text-center"></i>
-                  <span class="ml-3 text-sm font-medium">题库管理</span>
-                </div>
-              </div>
-            </div>
-  
-            <div class="mt-2">
-              <div
-                class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-              >
-                系统设置
-              </div>
-              <div class="px-4 py-2">
-                <div
-                  class="flex items-center text-gray-600 hover:text-blue-600 cursor-pointer"
-                >
-                  <i class="fas fa-user-cog w-5 text-center"></i>
-                  <span class="ml-3 text-sm font-medium">个人设置</span>
-                </div>
-              </div>
-              <div class="px-4 py-2">
-                <div
-                  class="flex items-center text-gray-600 hover:text-blue-600 cursor-pointer"
-                >
-                  <i class="fas fa-cog w-5 text-center"></i>
-                  <span class="ml-3 text-sm font-medium">系统设置</span>
-                </div>
-              </div>
-            </div>
-          </nav>
-        </aside>
+        <!-- 侧边栏组件 -->
+        <Sidebar 
+          :collapsed="sidebarCollapsed" 
+          :current-path="currentSidebarPath"
+          @navigate="handleSidebarNavigate"
+        />
   
         <!-- 主内容区 -->
-        <main class="ml-64 flex-1 p-6">
-          <!-- 面包屑导航 -->
-          <div class="mb-6 flex items-center text-sm text-gray-500">
-            <span class="cursor-pointer hover:text-blue-600">首页</span>
-            <i class="fas fa-chevron-right mx-2 text-xs"></i>
-            <span class="text-gray-700">教师工作台</span>
+        <main 
+          :class="[
+            'flex-1 p-6 transition-all duration-300',
+            sidebarCollapsed ? 'ml-16' : 'ml-64'
+          ]"
+        >
+          <!-- 权限管理组件 -->
+          <div v-if="showPermissionManagement">
+            <component :is="currentPermissionComponent" />
           </div>
+          
+          <!-- 仪表板内容 -->
+          <div v-else>
+            <!-- 面包屑导航 -->
+            <div class="mb-6 flex items-center text-sm text-gray-500">
+              <span class="cursor-pointer hover:text-blue-600">首页</span>
+              <i class="fas fa-chevron-right mx-2 text-xs"></i>
+              <span class="text-gray-700">教师工作台</span>
+            </div>
   
           <!-- 数据概览卡片 -->
           <div class="grid grid-cols-4 gap-6 mb-6">
@@ -531,6 +464,7 @@
               </div>
             </div>
           </div>
+          </div> <!-- 仪表板内容结束 -->
         </main>
       </div>
     </div>
@@ -540,6 +474,14 @@
 import { ref, onMounted, reactive, onUnmounted } from "vue";
 import { useRouter } from 'vue-router';
 import * as echarts from "echarts";
+import Sidebar from '@/components/Sidebar.vue';
+
+// 动态导入权限管理组件
+import PermissionOverview from '@/views/system/PermissionOverview.vue';
+import MenuManagement from '@/views/system/MenuManagement.vue';
+import RouteManagement from '@/views/system/RouteManagement.vue';
+import RoleManagement from '@/views/system/RoleManagement.vue';
+import UserManagement from '@/views/system/UserManagement.vue';
 
 const router = useRouter();
 
@@ -547,6 +489,51 @@ const router = useRouter();
 const showUserMenu = ref(false);
 const userMenuRef = ref(null);
 const userInfo = reactive(JSON.parse(localStorage.getItem('userInfo') || '{}'));
+
+// 侧边栏状态
+const sidebarCollapsed = ref(false);
+const currentPermissionComponent = ref(null);
+const showPermissionManagement = ref(false);
+const currentSidebarPath = ref('/dashboard');
+
+// 权限管理组件映射
+const permissionComponents = {
+  '/system/permission': PermissionOverview,
+  '/system/permission/menu': MenuManagement,
+  '/system/permission/route': RouteManagement,
+  '/system/permission/role': RoleManagement,
+  '/system/permission/user': UserManagement
+};
+
+// 切换侧边栏状态
+const toggleSidebar = () => {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+};
+
+// 处理侧边栏导航事件
+const handleSidebarNavigate = (path) => {
+  console.log('导航到:', path);
+  
+  // 更新当前激活路径
+  currentSidebarPath.value = path;
+  
+  // 如果是权限管理相关页面
+  if (path.startsWith('/system/permission')) {
+    showPermissionManagement.value = true;
+    currentPermissionComponent.value = permissionComponents[path] || PermissionOverview;
+  } else if (path === '/dashboard' || path === '/home') {
+    // 回到首页时，重置权限管理状态
+    showPermissionManagement.value = false;
+    currentPermissionComponent.value = null;
+  } else {
+    showPermissionManagement.value = false;
+    currentPermissionComponent.value = null;
+    // 对于其他页面，执行正常的路由跳转
+    if (path && path !== router.currentRoute.value.path) {
+      router.push(path);
+    }
+  }
+};
   
   // 日历数据
   const calendarDays = reactive([
@@ -952,6 +939,17 @@ const userInfo = reactive(JSON.parse(localStorage.getItem('userInfo') || '{}'));
   let chart: echarts.ECharts | null = null;
   
   onMounted(() => {
+    // 初始化权限管理状态
+    const currentPath = router.currentRoute.value.path;
+    
+    // 初始化侧边栏激活路径
+    currentSidebarPath.value = currentPath === '/' ? '/dashboard' : currentPath;
+    
+    if (currentPath.startsWith('/system/permission')) {
+      showPermissionManagement.value = true;
+      currentPermissionComponent.value = permissionComponents[currentPath] || PermissionOverview;
+    }
+    
     if (chartRef.value) {
       chart = echarts.init(chartRef.value);
   

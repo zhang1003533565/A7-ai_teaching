@@ -1,6 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Home from '../views/Home.vue'
+import PermissionManagement from '../views/system/PermissionManagement.vue'
+import PermissionOverview from '../views/system/PermissionOverview.vue'
+import MenuManagement from '../views/system/MenuManagement.vue'
+import RouteManagement from '../views/system/RouteManagement.vue'
+import RoleManagement from '../views/system/RoleManagement.vue'
+import UserManagement from '../views/system/UserManagement.vue'
 
 const routes = [
   {
@@ -23,6 +29,38 @@ const routes = [
     name: 'Home',
     component: Home,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/system/permission',
+    component: PermissionManagement,
+    meta: { requiresAuth: true },
+    children: [
+          {
+            path: '',
+            name: 'PermissionOverview',
+            component: PermissionOverview
+          },
+          {
+            path: 'menu',
+            name: 'MenuManagement',
+            component: MenuManagement
+          },
+          {
+            path: 'route',
+            name: 'RouteManagement',
+            component: RouteManagement
+          },
+          {
+            path: 'role',
+            name: 'RoleManagement',
+            component: RoleManagement
+          },
+          {
+            path: 'user',
+            name: 'UserManagement',
+            component: UserManagement
+          }
+        ]
   }
 ]
 
