@@ -1,10 +1,10 @@
 <!-- The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work. -->
 <template>
   <div class="h-screen bg-gray-50">
-    <!-- 顶部导航栏 -->
+      <!-- 顶部导航栏 -->
     <header class="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
       <div class="h-16 px-4 flex items-center justify-between">
-        <div class="flex items-center">
+          <div class="flex items-center">
           <!-- 侧边栏收起/展开按钮 -->
           <button 
             @click="toggleSidebar"
@@ -27,7 +27,7 @@
             </button>
             <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">3</span>
           </div>
-
+  
           <!-- 用户信息 -->
           <div class="relative" ref="userMenuRef">
             <div 
@@ -45,7 +45,7 @@
                 :class="{ 'transform rotate-180': showUserMenu }"
               ></i>
             </div>
-            
+  
             <!-- 下拉菜单 -->
             <div 
               v-show="showUserMenu"
@@ -73,8 +73,8 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
+                </div>
+              </div>
     </header>
 
     <div class="flex pt-16">
@@ -86,18 +86,18 @@
 
       <!-- 主内容区 -->
       <main 
-        :class="[
+                    :class="[
           'flex-1 p-6 transition-all duration-300',
           sidebarCollapsed ? 'ml-16' : 'ml-64'
         ]"
       >
         <!-- 子路由内容 -->
         <router-view />
-      </main>
+        </main>
+      </div>
     </div>
-  </div>
-</template>
-
+  </template>
+  
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'

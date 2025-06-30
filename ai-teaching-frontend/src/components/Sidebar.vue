@@ -199,31 +199,31 @@ const menuGroups = reactive([
             key: 'permission-overview',
             name: '管理概览',
             icon: 'fas fa-tachometer-alt',
-            path: '/dashboard/system/permission/overview'
+            path: '/dashboard/permission/overview'
           },
           {
             key: 'menu-management',
             name: '菜单分配管理',
             icon: 'fas fa-sitemap',
-            path: '/dashboard/system/permission/menu'
+            path: '/dashboard/permission/menu'
           },
           {
             key: 'route-management',
             name: '路由分配管理',
             icon: 'fas fa-route',
-            path: '/dashboard/system/permission/route'
+            path: '/dashboard/permission/route'
           },
           {
             key: 'role-management',
             name: '角色管理',
             icon: 'fas fa-user-tag',
-            path: '/dashboard/system/permission/role'
+            path: '/dashboard/permission/role'
           },
           {
             key: 'user-management',
             name: '用户管理',
             icon: 'fas fa-users',
-            path: '/dashboard/system/permission/user'
+            path: '/dashboard/permission/user'
           }
         ]
       },
@@ -237,75 +237,75 @@ const menuGroups = reactive([
             key: 'profile-settings',
             name: '基本信息',
             icon: 'fas fa-user',
-            path: '/dashboard/settings/profile'
+            path: '/dashboard/personal/profile'
           },
           {
             key: 'security-settings',
             name: '安全设置',
             icon: 'fas fa-shield-alt',
-            path: '/dashboard/settings/security'
+            path: '/dashboard/personal/security'
           },
           {
             key: 'notification-settings',
             name: '通知设置',
             icon: 'fas fa-bell',
-            path: '/dashboard/settings/notification'
+            path: '/dashboard/personal/notification'
           },
           {
             key: 'preference-settings',
             name: '偏好设置',
             icon: 'fas fa-sliders-h',
-            path: '/dashboard/settings/preference'
+            path: '/dashboard/personal/preference'
           },
           {
             key: 'account-settings',
             name: '账户管理',
             icon: 'fas fa-cog',
-            path: '/dashboard/settings/account'
+            path: '/dashboard/personal/account'
           }
         ]
       },
       {
         key: 'system-settings',
         name: '系统设置',
-        icon: 'fas fa-cog',
+        icon: 'fas fa-cogs',
         expanded: false,
         children: [
           {
             key: 'system-basic',
             name: '基本设置',
             icon: 'fas fa-sliders-h',
-            path: '/dashboard/system/settings/basic'
+            path: '/dashboard/system-settings/basic'
           },
           {
             key: 'system-email',
             name: '邮件配置',
             icon: 'fas fa-envelope-open',
-            path: '/dashboard/system/settings/email'
+            path: '/dashboard/system-settings/email'
           },
           {
             key: 'system-security',
             name: '安全策略',
             icon: 'fas fa-shield-alt',
-            path: '/dashboard/system/settings/security'
+            path: '/dashboard/system-settings/security'
           },
           {
             key: 'system-backup',
             name: '备份恢复',
             icon: 'fas fa-database',
-            path: '/dashboard/system/settings/backup'
+            path: '/dashboard/system-settings/backup'
           },
           {
             key: 'system-logs',
             name: '日志管理',
             icon: 'fas fa-file-alt',
-            path: '/dashboard/system/settings/logs'
+            path: '/dashboard/system-settings/logs'
           },
           {
             key: 'system-info',
             name: '系统信息',
             icon: 'fas fa-info-circle',
-            path: '/dashboard/system/settings/info'
+            path: '/dashboard/system-settings/info'
           }
         ]
       }

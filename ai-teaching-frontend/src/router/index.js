@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Home from '../views/Home.vue'
-import PermissionOverview from '../views/system/PermissionOverview.vue'
-import MenuManagement from '../views/system/MenuManagement.vue'
-import RouteManagement from '../views/system/RouteManagement.vue'
-import RoleManagement from '../views/system/RoleManagement.vue'
-import UserManagement from '../views/system/UserManagement.vue'
-import ProfileSettings from '../views/settings/ProfileSettings.vue'
-import SecuritySettings from '../views/settings/SecuritySettings.vue'
-import NotificationSettings from '../views/settings/NotificationSettings.vue'
-import PreferenceSettings from '../views/settings/PreferenceSettings.vue'
-import AccountSettings from '../views/settings/AccountSettings.vue'
+import PermissionOverview from '../views/permission/PermissionOverview.vue'
+import PermissionMenuManagement from '../views/permission/PermissionMenuManagement.vue'
+import PermissionRouteManagement from '../views/permission/PermissionRouteManagement.vue'
+import PermissionRoleManagement from '../views/permission/PermissionRoleManagement.vue'
+import PermissionUserManagement from '../views/permission/PermissionUserManagement.vue'
+import PersonalProfileSettings from '../views/personal/PersonalProfileSettings.vue'
+import PersonalSecuritySettings from '../views/personal/PersonalSecuritySettings.vue'
+import PersonalNotificationSettings from '../views/personal/PersonalNotificationSettings.vue'
+import PersonalPreferenceSettings from '../views/personal/PersonalPreferenceSettings.vue'
+import PersonalAccountSettings from '../views/personal/PersonalAccountSettings.vue'
 
 const routes = [
   {
@@ -34,91 +34,87 @@ const routes = [
       },
       // 权限管理子路由
       {
-        path: 'system/permission',
-        redirect: 'system/permission/overview'
-      },
-      {
-        path: 'system/permission/overview',
+        path: 'permission/overview',
         name: 'PermissionOverview',
         component: PermissionOverview
       },
       {
-        path: 'system/permission/menu',
-        name: 'MenuManagement',
-        component: MenuManagement
+        path: 'permission/menu',
+        name: 'PermissionMenuManagement',
+        component: PermissionMenuManagement
       },
       {
-        path: 'system/permission/route',
-        name: 'RouteManagement',
-        component: RouteManagement
+        path: 'permission/route',
+        name: 'PermissionRouteManagement',
+        component: PermissionRouteManagement
       },
       {
-        path: 'system/permission/role',
-        name: 'RoleManagement',
-        component: RoleManagement
+        path: 'permission/role',
+        name: 'PermissionRoleManagement',
+        component: PermissionRoleManagement
       },
       {
-        path: 'system/permission/user',
-        name: 'UserManagement',
-        component: UserManagement
+        path: 'permission/user',
+        name: 'PermissionUserManagement',
+        component: PermissionUserManagement
       },
       // 个人设置子路由
       {
-        path: 'settings/profile',
-        name: 'ProfileSettings',
-        component: ProfileSettings
+        path: 'personal/profile',
+        name: 'PersonalProfileSettings',
+        component: PersonalProfileSettings
       },
       {
-        path: 'settings/security',
-        name: 'SecuritySettings',
-        component: SecuritySettings
+        path: 'personal/security',
+        name: 'PersonalSecuritySettings',
+        component: PersonalSecuritySettings
       },
       {
-        path: 'settings/notification',
-        name: 'NotificationSettings',
-        component: NotificationSettings
+        path: 'personal/notification',
+        name: 'PersonalNotificationSettings',
+        component: PersonalNotificationSettings
       },
       {
-        path: 'settings/preference',
-        name: 'PreferenceSettings',
-        component: PreferenceSettings
+        path: 'personal/preference',
+        name: 'PersonalPreferenceSettings',
+        component: PersonalPreferenceSettings
       },
       {
-        path: 'settings/account',
-        name: 'AccountSettings',
-        component: AccountSettings
+        path: 'personal/account',
+        name: 'PersonalAccountSettings',
+        component: PersonalAccountSettings
       },
       
       // 系统设置子路由
       {
-        path: 'system/settings/basic',
+        path: 'system-settings/basic',
         name: 'BasicSettings',
-        component: () => import('../views/system/settings/BasicSettings.vue')
+        component: () => import('../views/system-settings/BasicSettings.vue')
       },
       {
-        path: 'system/settings/email',
+        path: 'system-settings/email',
         name: 'EmailSettings',
-        component: () => import('../views/system/settings/EmailSettings.vue')
+        component: () => import('../views/system-settings/EmailSettings.vue')
       },
       {
-        path: 'system/settings/security',
+        path: 'system-settings/security',
         name: 'SystemSecuritySettings',
-        component: () => import('../views/system/settings/SystemSecuritySettings.vue')
+        component: () => import('../views/system-settings/SystemSecuritySettings.vue')
       },
       {
-        path: 'system/settings/backup',
+        path: 'system-settings/backup',
         name: 'BackupSettings',
-        component: () => import('../views/system/settings/BackupSettings.vue')
+        component: () => import('../views/system-settings/BackupSettings.vue')
       },
       {
-        path: 'system/settings/logs',
+        path: 'system-settings/logs',
         name: 'LogsSettings',
-        component: () => import('../views/system/settings/LogsSettings.vue')
+        component: () => import('../views/system-settings/LogsSettings.vue')
       },
       {
-        path: 'system/settings/info',
+        path: 'system-settings/info',
         name: 'SystemInfo',
-        component: () => import('../views/system/settings/SystemInfo.vue')
+        component: () => import('../views/system-settings/SystemInfo.vue')
       }
     ]
   },
