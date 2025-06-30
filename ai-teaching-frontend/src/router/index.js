@@ -98,6 +98,42 @@ const routes = [
         component: () => import('../views/courses/CoursesResources.vue')
       },
       
+      // 作业管理子路由
+      {
+        path: 'homework',
+        redirect: 'homework/overview'
+      },
+      {
+        path: 'homework/overview',
+        name: 'HomeworkOverview',
+        component: () => import('../views/homework/HomeworkOverview.vue')
+      },
+      {
+        path: 'homework/publish',
+        name: 'HomeworkPublish',
+        component: () => import('../views/homework/HomeworkPublish.vue')
+      },
+      {
+        path: 'homework/grading',
+        name: 'HomeworkGrading',
+        component: () => import('../views/homework/HomeworkGrading.vue')
+      },
+      {
+        path: 'homework/grades',
+        name: 'HomeworkGrades',
+        component: () => import('../views/homework/HomeworkGrades.vue')
+      },
+      {
+        path: 'homework/submissions',
+        name: 'HomeworkSubmissions',
+        component: () => import('../views/homework/HomeworkSubmissions.vue')
+      },
+      {
+        path: 'homework/templates',
+        name: 'HomeworkTemplates',
+        component: () => import('../views/homework/HomeworkTemplates.vue')
+      },
+      
       // 个人设置子路由
       {
         path: 'personal',

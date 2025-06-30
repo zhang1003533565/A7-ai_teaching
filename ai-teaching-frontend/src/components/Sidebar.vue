@@ -171,7 +171,45 @@ const menuGroups = reactive([
         key: 'homework',
         name: '作业管理',
         icon: 'fas fa-tasks',
-        path: '/homework'
+        expanded: false,
+        children: [
+          {
+            key: 'homework-overview',
+            name: '作业概览',
+            icon: 'fas fa-tachometer-alt',
+            path: '/dashboard/homework/overview'
+          },
+          {
+            key: 'homework-publish',
+            name: '作业发布',
+            icon: 'fas fa-plus-circle',
+            path: '/dashboard/homework/publish'
+          },
+          {
+            key: 'homework-grading',
+            name: '作业批改',
+            icon: 'fas fa-check-circle',
+            path: '/dashboard/homework/grading'
+          },
+          {
+            key: 'homework-grades',
+            name: '成绩管理',
+            icon: 'fas fa-chart-line',
+            path: '/dashboard/homework/grades'
+          },
+          {
+            key: 'homework-submissions',
+            name: '提交统计',
+            icon: 'fas fa-chart-bar',
+            path: '/dashboard/homework/submissions'
+          },
+          {
+            key: 'homework-templates',
+            name: '作业模板',
+            icon: 'fas fa-copy',
+            path: '/dashboard/homework/templates'
+          }
+        ]
       },
       {
         key: 'analysis',
