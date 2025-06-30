@@ -199,31 +199,31 @@ const menuGroups = reactive([
             key: 'permission-overview',
             name: '管理概览',
             icon: 'fas fa-tachometer-alt',
-            path: '/system/permission'
+            path: '/dashboard/system/permission/overview'
           },
           {
             key: 'menu-management',
             name: '菜单分配管理',
             icon: 'fas fa-sitemap',
-            path: '/system/permission/menu'
+            path: '/dashboard/system/permission/menu'
           },
           {
             key: 'route-management',
             name: '路由分配管理',
             icon: 'fas fa-route',
-            path: '/system/permission/route'
+            path: '/dashboard/system/permission/route'
           },
           {
             key: 'role-management',
             name: '角色管理',
             icon: 'fas fa-user-tag',
-            path: '/system/permission/role'
+            path: '/dashboard/system/permission/role'
           },
           {
             key: 'user-management',
             name: '用户管理',
             icon: 'fas fa-users',
-            path: '/system/permission/user'
+            path: '/dashboard/system/permission/user'
           }
         ]
       },
@@ -231,13 +231,83 @@ const menuGroups = reactive([
         key: 'user-settings',
         name: '个人设置',
         icon: 'fas fa-user-cog',
-        path: '/settings/profile'
+        expanded: false,
+        children: [
+          {
+            key: 'profile-settings',
+            name: '基本信息',
+            icon: 'fas fa-user',
+            path: '/dashboard/settings/profile'
+          },
+          {
+            key: 'security-settings',
+            name: '安全设置',
+            icon: 'fas fa-shield-alt',
+            path: '/dashboard/settings/security'
+          },
+          {
+            key: 'notification-settings',
+            name: '通知设置',
+            icon: 'fas fa-bell',
+            path: '/dashboard/settings/notification'
+          },
+          {
+            key: 'preference-settings',
+            name: '偏好设置',
+            icon: 'fas fa-sliders-h',
+            path: '/dashboard/settings/preference'
+          },
+          {
+            key: 'account-settings',
+            name: '账户管理',
+            icon: 'fas fa-cog',
+            path: '/dashboard/settings/account'
+          }
+        ]
       },
       {
         key: 'system-settings',
         name: '系统设置',
         icon: 'fas fa-cog',
-        path: '/settings/system'
+        expanded: false,
+        children: [
+          {
+            key: 'system-basic',
+            name: '基本设置',
+            icon: 'fas fa-sliders-h',
+            path: '/dashboard/system/settings/basic'
+          },
+          {
+            key: 'system-email',
+            name: '邮件配置',
+            icon: 'fas fa-envelope-open',
+            path: '/dashboard/system/settings/email'
+          },
+          {
+            key: 'system-security',
+            name: '安全策略',
+            icon: 'fas fa-shield-alt',
+            path: '/dashboard/system/settings/security'
+          },
+          {
+            key: 'system-backup',
+            name: '备份恢复',
+            icon: 'fas fa-database',
+            path: '/dashboard/system/settings/backup'
+          },
+          {
+            key: 'system-logs',
+            name: '日志管理',
+            icon: 'fas fa-file-alt',
+            path: '/dashboard/system/settings/logs'
+          },
+          {
+            key: 'system-info',
+            name: '系统信息',
+            icon: 'fas fa-info-circle',
+            path: '/dashboard/system/settings/info'
+          }
+        ]
       }
     ]
   }
@@ -248,12 +318,6 @@ const navigateTo = (path) => {
   if (path && path !== activeMenuPath.value) {
     activeMenuPath.value = path  // 更新内部激活状态
     
-    // 如果是权限管理的子页面，不进行路由跳转，而是发出事件让父组件处理
-    if (path.startsWith('/system/permission')) {
-      emit('navigate', path)
-      return
-    }
-    
     if (path !== route.path) {
       router.push(path)
     }
@@ -263,11 +327,6 @@ const navigateTo = (path) => {
 
 const isActive = (path) => {
   if (!path) return false
-  // 对于权限管理的子页面，只进行精确匹配
-  if (path.startsWith('/system/permission')) {
-    return activeMenuPath.value === path
-  }
-  // 对于其他页面，使用原来的逻辑
   return activeMenuPath.value === path || activeMenuPath.value.startsWith(path + '/')
 }
 
@@ -300,9 +359,7 @@ const autoExpandParentMenu = () => {
 
 // 监听路由变化
 watch(route, () => {
-  if (!route.path.startsWith('/system/permission')) {
-    activeMenuPath.value = route.path
-  }
+  activeMenuPath.value = route.path
   autoExpandParentMenu()
 }, { immediate: true })
 
