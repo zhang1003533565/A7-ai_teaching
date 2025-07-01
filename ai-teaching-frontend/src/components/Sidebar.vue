@@ -2,7 +2,7 @@
   <!-- 左侧菜单栏 -->
   <aside
     :class="[
-      'bg-white shadow-sm h-[calc(100vh-4rem)] fixed left-0 overflow-y-auto transition-all duration-300 z-40',
+      'bg-white shadow-sm h-[calc(100vh-4rem)] fixed left-0 overflow-y-auto transition-all duration-300 ease-in-out z-40',
       collapsed ? 'w-16' : 'w-64'
     ]"
   >
@@ -10,8 +10,11 @@
       <!-- 首页 -->
       <div class="px-4 py-2">
         <div
-          class="flex items-center text-gray-600 hover:text-blue-600 cursor-pointer transition-colors"
-          :class="{ 'justify-center': collapsed }"
+          class="flex items-center text-gray-600 hover:text-blue-600 cursor-pointer transition-all duration-200 ease-in-out rounded-lg hover:bg-blue-50"
+          :class="[
+            { 'justify-center': collapsed },
+            isActive('/dashboard') ? 'text-blue-600 bg-blue-50' : ''
+          ]"
           @click="navigateTo('/dashboard')"
         >
           <i class="fas fa-home w-5 text-center"></i>
@@ -28,56 +31,65 @@
           {{ group.title }}
         </div>
         
-        <div v-for="item in group.items" :key="item.key" class="px-4 py-2">
+        <div v-for="item in group.items" :key="item.key" class="px-4 py-1">
           <!-- 有子菜单的项目 -->
           <div v-if="item.children && item.children.length > 0">
             <div
-              class="flex items-center cursor-pointer transition-colors"
+              class="flex items-center cursor-pointer transition-all duration-200 ease-in-out rounded-lg hover:bg-blue-50 p-2"
               :class="[
                 collapsed ? 'justify-center' : 'justify-between',
-                isActiveGroup(item) ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
+                isActiveGroup(item) ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600'
               ]"
               @click="toggleSubmenu(item.key)"
               :title="collapsed ? item.name : ''"
             >
               <div class="flex items-center">
-                <i :class="item.icon + ' w-5 text-center'"></i>
+                <i :class="item.icon + ' w-5 text-center transition-transform duration-200'"></i>
                 <span v-show="!collapsed" class="ml-3 text-sm font-medium">{{ item.name }}</span>
               </div>
               <i 
                 v-show="!collapsed"
                 :class="[
-                  'fas fa-chevron-down transition-transform text-xs',
-                  item.expanded ? '' : '-rotate-90'
+                  'fas fa-chevron-right transition-transform duration-200 ease-in-out text-xs',
+                  item.expanded ? 'rotate-90' : 'rotate-0'
                 ]"
               ></i>
             </div>
             
             <!-- 子菜单 -->
-            <div 
-              v-show="!collapsed && item.expanded" 
-              class="mt-2 ml-8 space-y-1"
+            <transition
+              enter-active-class="transition-all duration-300 ease-out"
+              leave-active-class="transition-all duration-200 ease-in"
+              enter-from-class="transform opacity-0 -translate-y-4 scale-95"
+              enter-to-class="transform opacity-100 translate-y-0 scale-100"
+              leave-from-class="transform opacity-100 translate-y-0 scale-100"
+              leave-to-class="transform opacity-0 -translate-y-4 scale-95"
             >
-              <div
-                v-for="child in item.children"
-                :key="child.key"
-                class="flex items-center cursor-pointer transition-colors py-1"
-                :class="isActive(child.path) ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'"
-                @click="navigateTo(child.path)"
+              <div 
+                v-show="!collapsed && item.expanded" 
+                class="mt-1 ml-7 space-y-1 overflow-hidden"
               >
-                <i :class="child.icon + ' w-4 text-center mr-2'"></i>
-                <span class="text-sm">{{ child.name }}</span>
+                <div
+                  v-for="child in item.children"
+                  :key="child.key"
+                  class="flex items-center cursor-pointer transform transition-all duration-150 ease-out rounded-lg p-2 hover:bg-blue-50 hover:translate-x-1"
+                  :class="isActive(child.path) ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600'"
+                  @click="navigateTo(child.path)"
+                >
+                  <i :class="child.icon + ' w-4 text-center mr-2'"></i>
+                  <span class="text-sm">{{ child.name }}</span>
+                </div>
               </div>
-            </div>
+            </transition>
           </div>
           
           <!-- 无子菜单的项目 -->
           <div
             v-else
-            class="flex items-center cursor-pointer transition-colors"
+            class="flex items-center cursor-pointer transition-all duration-200 ease-in-out rounded-lg hover:bg-blue-50 p-2"
             :class="[
               collapsed ? 'justify-center' : '',
-              isActive(item.path) ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
+              isActive(item.path) ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600'
             ]"
             @click="navigateTo(item.path)"
             :title="collapsed ? item.name : ''"
@@ -616,7 +628,16 @@ const isActiveGroup = (item) => {
 }
 
 const toggleSubmenu = (key) => {
-  // 找到对应的菜单项并切换展开状态
+  // 关闭其他展开的菜单
+  menuGroups.forEach(group => {
+    group.items.forEach(item => {
+      if (item.key !== key && item.children) {
+        item.expanded = false
+      }
+    })
+  })
+  
+  // 切换当前菜单的展开状态
   menuGroups.forEach(group => {
     group.items.forEach(item => {
       if (item.key === key && item.children) {
@@ -658,42 +679,58 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 菜单项激活状态样式 */
-.router-link-active {
-  color: #3B82F6;
+/* 滚动条样式优化 */
+aside::-webkit-scrollbar {
+  width: 4px;
 }
 
-/* 悬停效果 */
+aside::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 2px;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+  background: #D1D5DB;
+}
+
+/* 基础过渡效果 */
+.cursor-pointer {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 图标旋转动画 */
+.fa-chevron-right {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 菜单项hover效果 */
 .cursor-pointer:hover {
-  background-color: rgba(59, 130, 246, 0.05);
-  border-radius: 0.375rem;
-  margin: 0 0.5rem;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
+  transform: translateX(2px);
 }
 
-/* 激活状态背景 */
+/* 激活状态过渡 */
 .text-blue-600 {
-  background-color: rgba(59, 130, 246, 0.1);
-  border-radius: 0.375rem;
-  margin: 0 0.5rem;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
+  transition: background-color 0.2s ease-out;
 }
 
-/* 子菜单项样式 */
-.ml-8 .text-blue-600 {
-  background-color: rgba(59, 130, 246, 0.15);
-  border-radius: 0.25rem;
-  margin: 0;
-  padding: 0.25rem 0.5rem;
+/* 子菜单展开/收起动画 */
+.submenu-enter-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
 }
 
-/* 子菜单悬停效果 */
-.ml-8 .cursor-pointer:hover {
-  background-color: rgba(59, 130, 246, 0.08);
-  border-radius: 0.25rem;
-  margin: 0;
-  padding: 0.25rem 0.5rem;
+.submenu-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+}
+
+.submenu-enter-from,
+.submenu-leave-to {
+  opacity: 0;
+  transform: scaleY(0.95) translateY(-4px);
 }
 </style> 
