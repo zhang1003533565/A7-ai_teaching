@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @AllArgsConstructor
 @TableName("sys_user")
 public class User {

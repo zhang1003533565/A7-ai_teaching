@@ -2,13 +2,13 @@
 export const config = {
   // 开发环境
   development: {
-    baseUrl: 'http://localhost:8080/api',
-    timeout: 30000  // 增加到30秒
+    baseUrl: 'http://localhost:8080/api',  
+    timeout: 30000
   },
   // 生产环境
   production: {
-    baseUrl: '/api', // 生产环境使用相对路径
-    timeout: 30000  // 增加到30秒
+    baseUrl: '',  // 生产环境使用相对路径
+    timeout: 30000
   }
 }
 

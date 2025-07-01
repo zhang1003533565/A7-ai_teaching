@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.aiteaching.mapper.PermissionMapper">
+    
+    <select id="selectByUserId" resultType="com.example.aiteaching.entity.Permission">
+        SELECT DISTINCT p.*
+        FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.permission_id
+        INNER JOIN sys_user_role ur ON rp.role_id = ur.role_id
+        WHERE ur.user_id = #{userId}
+        AND p.is_deleted = 0
+        ORDER BY p.sort
+    </select>
+    
+    <select id="selectMenuTree" resultType="com.example.aiteaching.entity.Permission">
+        SELECT *
+        FROM sys_permission
+        WHERE permission_type = 1
+        AND is_deleted = 0
+        ORDER BY sort
+    </select>
+    
+    <select id="selectRouteList" resultType="com.example.aiteaching.entity.Permission">
+        SELECT *
+        FROM sys_permission
+        WHERE permission_type = 2
+        AND is_deleted = 0
+        ORDER BY sort
+    </select>
+    
+    <select id="selectRoleMenuPermissions" resultType="com.example.aiteaching.entity.Permission">
+        SELECT p.*
+        FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id = #{roleId} 
+        AND p.permission_type = 1
+        AND p.is_deleted = 0
+        AND rp.is_deleted = 0
+        ORDER BY p.sort
+    </select>
+    
+    <select id="selectRoleRoutePermissions" resultType="com.example.aiteaching.entity.Permission">
+        SELECT p.*
+        FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id = #{roleId} 
+        AND p.permission_type = 2
+        AND p.is_deleted = 0
+        AND rp.is_deleted = 0
+        ORDER BY p.sort
+    </select>
+    
+    <delete id="deleteRoleMenuPermissions">
+        UPDATE sys_role_permission
+        SET is_deleted = 1
+        WHERE role_id = #{roleId}
+        AND permission_id IN (
+            SELECT id FROM sys_permission WHERE permission_type = 1 AND is_deleted = 0
+        )
+    </delete>
+    
+    <insert id="insertRoleMenuPermissions">
+        INSERT INTO sys_role_permission (role_id, permission_id, create_time)
+        SELECT #{roleId}, id, NOW()
+        FROM sys_permission
+        WHERE id IN
+        <foreach collection="permissionIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND permission_type = 1
+        AND is_deleted = 0
+    </insert>
+    
+    <delete id="deleteRoleRoutePermissions">
+        UPDATE sys_role_permission
+        SET is_deleted = 1
+        WHERE role_id = #{roleId}
+        AND permission_id IN (
+            SELECT id FROM sys_permission WHERE permission_type = 2 AND is_deleted = 0
+        )
+    </delete>
+    
+    <insert id="insertRoleRoutePermissions">
+        INSERT INTO sys_role_permission (role_id, permission_id, create_time)
+        SELECT #{roleId}, id, NOW()
+        FROM sys_permission
+        WHERE id IN
+        <foreach collection="permissionIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND permission_type = 2
+        AND is_deleted = 0
+    </insert>
+    
+</mapper> 

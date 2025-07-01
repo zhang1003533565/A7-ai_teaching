@@ -17,11 +17,19 @@ public class CorsConfig {
         config.setAllowCredentials(true);
         
         // 允许特定的源（开发环境）
-        config.addAllowedOrigin("http://localhost:5173"); // Vue开发服务器默认端口
-        config.addAllowedOrigin("http://localhost:4173"); // Vue预览端口
+        config.addAllowedOriginPattern("*");  // 允许所有源，仅用于开发环境
         
         // 允许访问的头信息
         config.addAllowedHeader("*");
+        
+        // 允许暴露的头信息
+        config.addExposedHeader("Authorization");
+        config.addExposedHeader("Content-Type");
+        config.addExposedHeader("X-Requested-With");
+        config.addExposedHeader("accept");
+        config.addExposedHeader("Origin");
+        config.addExposedHeader("Access-Control-Request-Method");
+        config.addExposedHeader("Access-Control-Request-Headers");
         
         // 预检请求的缓存时间（秒）
         config.setMaxAge(18000L);

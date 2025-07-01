@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { getUserPermissions } from '@/api/permission'
 import Login from '../views/Login.vue'
 import Home from '../views/Home.vue'
 import PermissionOverview from '../views/permission/PermissionOverview.vue'
@@ -460,20 +461,57 @@ const router = createRouter({
   routes
 })
 
-// 路由守卫：检查是否需要登录
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
+// 路由守卫：检查是否需要登录和权限
+router.beforeEach(async (to, from, next) => {
+  // 如果是登录页面，直接通过
+  if (to.path === '/login') {
+    next();
+    return;
+  }
+
+  const token = localStorage.getItem('token');
+  const userRole = localStorage.getItem('userRole');
+  const permissions = JSON.parse(localStorage.getItem('permissions') || '[]');
   
   if (to.meta.requiresAuth && !token) {
     // 需要登录但没有token，跳转到登录页
-    next('/login')
-  } else if (to.path === '/login' && token) {
-    // 已经登录但访问登录页，跳转到首页
-    next('/dashboard')
+    next('/login');
+  } else if (to.meta.requiresAuth) {
+    // 权限验证
+    if (userRole === 'admin') {
+      // 管理员拥有所有权限
+      next();
+    } else if (permissions.length === 0) {
+      try {
+        // 获取用户权限
+        const response = await getUserPermissions();
+        if (response.code === 200) {
+          localStorage.setItem('permissions', JSON.stringify(response.data));
+          // 检查是否有访问该路由的权限
+          if (response.data.some(p => p.route_path === to.path)) {
+            next();
+          } else {
+            next('/403');
+          }
+        } else {
+          next('/login');
+        }
+      } catch (error) {
+        console.error('获取权限失败:', error);
+        next('/login');
+      }
+    } else {
+      // 使用缓存的权限数据验证
+      if (permissions.some(p => p.route_path === to.path)) {
+        next();
+      } else {
+        next('/403');
+      }
+    }
   } else {
-    // 正常访问
-    next()
+    // 不需要权限验证的路由
+    next();
   }
-})
+});
 
 export default router 

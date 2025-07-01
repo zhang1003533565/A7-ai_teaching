@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
@@ -140,27 +141,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     @Override
     @Transactional
     public boolean assignPermissions(Long roleId, List<Long> permissionIds) {
-        // 1. 检查角色是否存在
-        Role role = getById(roleId);
-        if (role == null) {
-            throw new RuntimeException("角色不存在");
-        }
-
-        // 2. 删除原有权限
-        removeRolePermissions(roleId);
-
-        // 3. 添加新权限
+        // 先删除原有的权限关联
+        rolePermissionMapper.deleteByRoleId(roleId);
+        
+        // 如果有新的权限，则添加
         if (permissionIds != null && !permissionIds.isEmpty()) {
-            List<RolePermission> rolePermissions = new ArrayList<>();
-            for (Long permissionId : permissionIds) {
-                RolePermission rolePermission = new RolePermission();
-                rolePermission.setRoleId(roleId);
-                rolePermission.setPermissionId(permissionId);
-                rolePermissions.add(rolePermission);
-            }
-            rolePermissionMapper.insertBatch(rolePermissions);
+            Long[] permissionIdArray = permissionIds.toArray(new Long[0]);
+            rolePermissionMapper.insertBatch(roleId, permissionIdArray);
         }
-
         return true;
     }
 

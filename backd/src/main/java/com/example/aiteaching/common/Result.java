@@ -1,34 +1,43 @@
 package com.example.aiteaching.common;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Result<T> {
     private Integer code;
     private String message;
     private T data;
 
-    private Result() {}
+    public static <T> Result<T> success() {
+        Result<T> result = new Result<>();
+        result.code = 200;
+        result.message = "success";
+        return result;
+    }
 
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<>();
-        result.setCode(200);
-        result.setMessage("success");
-        result.setData(data);
+        result.code = 200;
+        result.message = "success";
+        result.data = data;
         return result;
     }
 
     public static <T> Result<T> error(String message) {
         Result<T> result = new Result<>();
-        result.setCode(500);
-        result.setMessage(message);
+        result.code = 500;
+        result.message = message;
         return result;
     }
 
     public static <T> Result<T> error(Integer code, String message) {
         Result<T> result = new Result<>();
-        result.setCode(code);
-        result.setMessage(message);
+        result.code = code;
+        result.message = message;
         return result;
     }
 } 

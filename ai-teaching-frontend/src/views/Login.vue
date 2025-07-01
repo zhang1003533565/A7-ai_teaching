@@ -26,7 +26,7 @@
             <label
               for="studentId"
               class="block text-sm font-medium text-gray-700 mb-1"
-              >学号</label
+              >学号/工号</label
             >
             <div class="relative rounded-md shadow-sm">
               <div
@@ -38,7 +38,7 @@
                 id="studentId"
                 v-model="studentId"
                 type="text"
-                placeholder="请输入学号"
+                placeholder="请输入学号/工号"
                 class="form-input"
                 :class="{'error': studentIdError}"
                 @focus="studentIdError = false"
@@ -172,6 +172,7 @@
 import { ref, computed } from "vue";
 import { useRouter } from 'vue-router';
 import { login } from '../api/user';
+import { getUserPermissions } from '../api/permission';
 
 const router = useRouter();
 
@@ -229,13 +230,22 @@ const handleLogin = async () => {
     });
 
     // 保存token和用户信息
-    localStorage.setItem('token', response.token);
+    localStorage.setItem('token', `Bearer ${response.data.token}`);
     localStorage.setItem('userInfo', JSON.stringify({
-      username: response.username,
-      realName: response.realName,
-      role: response.role,
-      avatar: response.avatar
+      id: response.data.id,
+      username: response.data.username,
+      realName: response.data.realName,
+      role: response.data.role,
+      avatar: response.data.avatar
     }));
+    localStorage.setItem('userRole', response.data.role);
+
+    // 保存权限信息
+    if (response.data.permissions) {
+      localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
+    } else {
+      localStorage.setItem('permissions', JSON.stringify([]));
+    }
 
     // 如果记住密码，保存账号密码
     if (rememberMe.value) {

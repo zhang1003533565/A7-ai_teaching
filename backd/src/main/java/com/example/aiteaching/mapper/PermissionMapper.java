@@ -3,7 +3,7 @@ package com.example.aiteaching.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.aiteaching.entity.Permission;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,26 +16,50 @@ public interface PermissionMapper extends BaseMapper<Permission> {
     /**
      * 根据用户ID查询权限列表
      */
-    @Select("SELECT DISTINCT p.* FROM sys_permission p " +
-            "INNER JOIN sys_role_permission rp ON p.id = rp.permission_id " +
-            "INNER JOIN sys_user_role ur ON rp.role_id = ur.role_id " +
-            "WHERE ur.user_id = #{userId} AND p.is_deleted = 0 AND p.status = 1 " +
-            "ORDER BY p.sort ASC")
-    List<Permission> selectPermissionsByUserId(Long userId);
+    List<Permission> selectByUserId(Long userId);
 
     /**
      * 查询菜单权限树
      */
-    @Select("SELECT * FROM sys_permission " +
-            "WHERE is_deleted = 0 AND status = 1 AND permission_type = 1 " +
-            "ORDER BY sort ASC")
     List<Permission> selectMenuTree();
 
     /**
      * 根据父级ID查询子权限
      */
-    @Select("SELECT * FROM sys_permission " +
-            "WHERE parent_id = #{parentId} AND is_deleted = 0 AND status = 1 " +
-            "ORDER BY sort ASC")
     List<Permission> selectByParentId(Long parentId);
+
+    /**
+     * 查询路由权限列表
+     */
+    List<Permission> selectRouteList();
+
+    /**
+     * 查询角色的菜单权限
+     */
+    List<Permission> selectRoleMenuPermissions(Long roleId);
+
+    /**
+     * 查询角色的路由权限
+     */
+    List<Permission> selectRoleRoutePermissions(Long roleId);
+
+    /**
+     * 删除角色的菜单权限
+     */
+    int deleteRoleMenuPermissions(Long roleId);
+
+    /**
+     * 删除角色的路由权限
+     */
+    int deleteRoleRoutePermissions(Long roleId);
+
+    /**
+     * 批量插入角色的菜单权限
+     */
+    int insertRoleMenuPermissions(@Param("roleId") Long roleId, @Param("permissionIds") Long[] permissionIds);
+
+    /**
+     * 批量插入角色的路由权限
+     */
+    int insertRoleRoutePermissions(@Param("roleId") Long roleId, @Param("permissionIds") Long[] permissionIds);
 } 

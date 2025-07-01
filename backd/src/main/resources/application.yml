@@ -24,5 +24,8 @@ mybatis-plus:
 
 logging:
   level:
-    root: debug
+    root: INFO
+    org.springframework.boot.autoconfigure: WARN
+    org.apache.tomcat: WARN
+    org.apache.catalina: WARN
     com.example.aiteaching.mapper: debug 

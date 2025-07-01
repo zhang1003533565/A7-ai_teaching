@@ -10,6 +10,8 @@ import com.example.aiteaching.mapper.UserMapper;
 import com.example.aiteaching.mapper.UserRoleMapper;
 import com.example.aiteaching.mapper.RoleMapper;
 import com.example.aiteaching.service.UserService;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,11 +59,18 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("账号已被禁用");
         }
 
-        // 4. 生成token（这里简单实现，实际项目中应该使用JWT等方案）
-        String token = "token_" + user.getUsername() + "_" + System.currentTimeMillis();
+        // 4. 生成token
+        String token = Jwts.builder()
+                .setSubject(user.getId().toString())
+                .claim("role", user.getRole())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 24小时过期
+                .signWith(SignatureAlgorithm.HS256, "your-secret-key")
+                .compact();
 
         // 5. 返回登录响应
         return LoginResponse.builder()
+                .id(user.getId())
                 .token(token)
                 .username(user.getUsername())
                 .realName(user.getRealName())

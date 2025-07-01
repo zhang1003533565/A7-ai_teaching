@@ -5,7 +5,9 @@ import com.example.aiteaching.dto.LoginRequest;
 import com.example.aiteaching.dto.LoginResponse;
 import com.example.aiteaching.dto.UserRequest;
 import com.example.aiteaching.entity.User;
+import com.example.aiteaching.entity.Permission;
 import com.example.aiteaching.service.UserService;
+import com.example.aiteaching.service.PermissionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -31,6 +34,9 @@ public class UserControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private PermissionService permissionService;
 
     @InjectMocks
     private UserController userController;
@@ -52,9 +58,18 @@ public class UserControllerTest {
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken("test-token");
+        loginResponse.setId(1L);
+        loginResponse.setRole("user");
+
+        List<Permission> permissions = new ArrayList<>();
+        Permission permission = new Permission();
+        permission.setId(1L);
+        permission.setPermissionName("test");
+        permissions.add(permission);
 
         // 模拟服务层行为
         when(userService.login(any(LoginRequest.class))).thenReturn(loginResponse);
+        when(permissionService.getUserPermissions(any(Long.class))).thenReturn(permissions);
 
         // 执行测试并验证结果
         mockMvc.perform(post("/api/user/login")
@@ -194,9 +209,8 @@ public class UserControllerTest {
         loginRequest.setUsername("test");
         loginRequest.setPassword("wrongpassword");
 
-        // 模拟服务层抛出异常
-        when(userService.login(any(LoginRequest.class)))
-                .thenThrow(new RuntimeException("用户名或密码错误"));
+        // 模拟服务层返回null
+        when(userService.login(any(LoginRequest.class))).thenReturn(null);
 
         // 执行测试并验证结果
         mockMvc.perform(post("/api/user/login")

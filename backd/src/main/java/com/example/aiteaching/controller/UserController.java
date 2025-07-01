@@ -3,7 +3,10 @@ package com.example.aiteaching.controller;
 import com.example.aiteaching.common.Result;
 import com.example.aiteaching.dto.*;
 import com.example.aiteaching.entity.User;
+import com.example.aiteaching.entity.Permission;
 import com.example.aiteaching.service.UserService;
+import com.example.aiteaching.service.PermissionService;
+import com.example.aiteaching.common.util.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,14 +19,25 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PermissionService permissionService;
+
     @PostMapping("/login")
     public Result<LoginResponse> login(@RequestBody LoginRequest request) {
-        try {
-            LoginResponse response = userService.login(request);
+        LoginResponse response = userService.login(request);
+        if (response != null) {
+            // 如果是管理员，返回所有权限
+            if ("admin".equals(response.getRole())) {
+                List<Permission> allPermissions = permissionService.getAllPermissions();
+                response.setPermissions(allPermissions);
+            } else {
+                // 获取用户的权限
+                List<Permission> permissions = permissionService.getUserPermissions(response.getId());
+                response.setPermissions(permissions);
+            }
             return Result.success(response);
-        } catch (RuntimeException e) {
-            return Result.error(e.getMessage());
         }
+        return Result.error("用户名或密码错误");
     }
 
     @PostMapping("/add")
@@ -94,5 +108,16 @@ public class UserController {
         } catch (RuntimeException e) {
             return Result.error(e.getMessage());
         }
+    }
+
+    @GetMapping("/permissions")
+    public Result<List<Permission>> getUserPermissions() {
+        Long userId = UserContext.getCurrentUserId();
+        String userRole = UserContext.getCurrentUserRole();
+        
+        if ("admin".equals(userRole)) {
+            return Result.success(permissionService.getAllPermissions());
+        }
+        return Result.success(permissionService.getUserPermissions(userId));
     }
 } 

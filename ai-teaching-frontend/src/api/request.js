@@ -19,7 +19,7 @@ service.interceptors.request.use(
     // 从localStorage获取token
     const token = localStorage.getItem('token')
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`
+      config.headers['Authorization'] = token
     }
     console.log('请求配置：', config);
     return config
@@ -35,6 +35,7 @@ service.interceptors.response.use(
   response => {
     const res = response.data
     console.log('响应数据：', res);
+
     // 如果是直接返回的数据，包装一下
     if (!res.hasOwnProperty('code')) {
       return {
@@ -43,11 +44,27 @@ service.interceptors.response.use(
         message: 'success'
       }
     }
+
     // 如果返回的code不是200，说明有错误
     if (res.code !== 200) {
-      return Promise.reject(new Error(res.message || '操作失败'));
+      // 401: Token失效
+      if (res.code === 401) {
+        // 清除用户信息
+        localStorage.removeItem('token')
+        localStorage.removeItem('userInfo')
+        localStorage.removeItem('permissions')
+        // 跳转到登录页
+        router.replace('/login')
+        return Promise.reject(new Error('登录已过期，请重新登录'))
+      }
+      // 403: 权限不足
+      if (res.code === 403) {
+        router.replace('/403')
+        return Promise.reject(new Error('权限不足'))
+      }
+      return Promise.reject(new Error(res.message || '操作失败'))
     }
-    return res;  // 返回完整的响应数据
+    return res
   },
   error => {
     console.error('响应错误：', error)
@@ -56,11 +73,15 @@ service.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           message = '未授权，请重新登录'
+          // 清除用户信息
           localStorage.removeItem('token')
-          router.push('/login')
+          localStorage.removeItem('userInfo')
+          localStorage.removeItem('permissions')
+          router.replace('/login')
           break
         case 403:
           message = '权限不足'
+          router.replace('/403')
           break
         case 404:
           message = '请求的资源不存在'
@@ -71,6 +92,8 @@ service.interceptors.response.use(
         default:
           message = `连接错误 ${error.response.status}`
       }
+    } else if (error.request) {
+      message = '服务器无响应'
     }
     return Promise.reject(new Error(message))
   }

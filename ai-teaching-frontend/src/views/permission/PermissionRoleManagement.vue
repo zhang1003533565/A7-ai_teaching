@@ -298,7 +298,7 @@
           <button @click="showMenuPermissionDialog = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
             取消
           </button>
-          <button @click="saveRoleMenuPermissions" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button @click="handleSaveMenuPermissions" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
             保存
           </button>
         </div>
@@ -363,7 +363,7 @@
           <button @click="showRoutePermissionDialog = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
             取消
           </button>
-          <button @click="saveRoleRoutePermissions" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button @click="handleSaveRoutePermissions" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
             保存
           </button>
         </div>
@@ -374,8 +374,22 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import { createRole, updateRole, deleteRole as deleteRoleApi, getRole, getRolePage } from '@/api/role';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import {
+  createRole,
+  updateRole,
+  deleteRole as deleteRoleApi,
+  getRole,
+  getRolePage
+} from '@/api/role';
+import {
+  getMenuPermissionTree,
+  getRoutePermissionList,
+  getRoleMenuPermissions,
+  getRoleRoutePermissions,
+  saveRoleMenuPermissions,
+  saveRoleRoutePermissions
+} from '@/api/permission';
 
 // 状态管理
 const showAddDialog = ref(false);
@@ -470,7 +484,9 @@ const deleteRole = async (role) => {
   }
   
   try {
-    await ElMessageBox.confirm(`确定要删除角色"${role.roleName}"吗？`, '提示', {
+    await ElMessageBox.confirm('确定要删除该角色吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
       type: 'warning'
     });
     
@@ -479,7 +495,7 @@ const deleteRole = async (role) => {
     refreshRoles();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败：' + error.message);
+      ElMessage.error(error.message || '删除失败');
     }
   }
 };
@@ -538,20 +554,51 @@ const getOperationTypeText = (type) => {
   return types[type] || type;
 };
 
-const configMenuPermissions = (role) => {
-  selectedRole.value = { ...role };
-  selectedMenuPermissions.value = [];
-  // 这里应该从API获取该角色已有的菜单权限
-  menuPermissionTree.value = [...mockMenuPermissionTree.value];
-  showMenuPermissionDialog.value = true;
+const configMenuPermissions = async (role) => {
+  try {
+    selectedRole.value = { ...role };
+    // 获取菜单权限树
+    const menuTreeRes = await getMenuPermissionTree();
+    menuPermissionTree.value = menuTreeRes.data || [];
+    
+    // 获取角色已有的菜单权限
+    const roleMenuRes = await getRoleMenuPermissions(role.id);
+    // 提取所有权限ID（包括父节点和子节点）
+    const extractPermissionIds = (permissions) => {
+      let ids = [];
+      permissions.forEach(permission => {
+        ids.push(permission.id);
+        if (permission.children && permission.children.length > 0) {
+          ids = ids.concat(extractPermissionIds(permission.children));
+        }
+      });
+      return ids;
+    };
+    selectedMenuPermissions.value = extractPermissionIds(roleMenuRes.data || []);
+    
+    showMenuPermissionDialog.value = true;
+  } catch (error) {
+    console.error('获取菜单权限数据失败：', error);
+    ElMessage.error('获取菜单权限数据失败：' + error.message);
+  }
 };
 
-const configRoutePermissions = (role) => {
-  selectedRole.value = { ...role };
-  selectedRoutePermissions.value = [];
-  // 这里应该从API获取该角色已有的路由权限
-  routePermissionList.value = [...mockRoutePermissionList.value];
-  showRoutePermissionDialog.value = true;
+const configRoutePermissions = async (role) => {
+  try {
+    selectedRole.value = { ...role };
+    // 获取路由权限列表
+    const routeListRes = await getRoutePermissionList();
+    routePermissionList.value = routeListRes.data || [];
+    
+    // 获取角色已有的路由权限
+    const roleRouteRes = await getRoleRoutePermissions(role.id);
+    selectedRoutePermissions.value = roleRouteRes.data || [];
+    
+    showRoutePermissionDialog.value = true;
+  } catch (error) {
+    console.error('获取路由权限数据失败：', error);
+    ElMessage.error('获取路由权限数据失败：' + error.message);
+  }
 };
 
 const handleParentMenuPermissionChange = (permission) => {
@@ -602,22 +649,29 @@ const handleChildMenuPermissionChange = (parentPermission) => {
   }
 };
 
-const saveRoleMenuPermissions = () => {
-  console.log('保存角色菜单权限', {
-    roleId: selectedRole.value.id,
-    menuPermissions: selectedMenuPermissions.value
-  });
-  // 这里应该调用API保存角色菜单权限
-  showMenuPermissionDialog.value = false;
+const handleSaveMenuPermissions = async () => {
+  try {
+    // 过滤出所有选中的权限ID
+    const permissionIds = selectedMenuPermissions.value.map(id => parseInt(id));
+    await saveRoleMenuPermissions(selectedRole.value.id, permissionIds);
+    ElMessage.success('菜单权限保存成功');
+    showMenuPermissionDialog.value = false;
+    refreshRoles();
+  } catch (error) {
+    console.error('保存菜单权限失败：', error);
+    ElMessage.error('保存失败：' + error.message);
+  }
 };
 
-const saveRoleRoutePermissions = () => {
-  console.log('保存角色路由权限', {
-    roleId: selectedRole.value.id,
-    routePermissions: selectedRoutePermissions.value
-  });
-  // 这里应该调用API保存角色路由权限
-  showRoutePermissionDialog.value = false;
+const handleSaveRoutePermissions = async () => {
+  try {
+    await saveRoleRoutePermissions(selectedRole.value.id, selectedRoutePermissions.value);
+    ElMessage.success('路由权限保存成功');
+    showRoutePermissionDialog.value = false;
+    refreshRoles();
+  } catch (error) {
+    ElMessage.error('保存失败：' + error.message);
+  }
 };
 
 const selectAllModuleRoutes = (module) => {
