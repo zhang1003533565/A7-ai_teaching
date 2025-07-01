@@ -35,6 +35,16 @@ import PerformanceAnalysis from '../views/analysis/PerformanceAnalysis.vue'
 import EngagementAnalysis from '../views/analysis/EngagementAnalysis.vue'
 import KnowledgeMap from '../views/analysis/KnowledgeMap.vue'
 import LearningReport from '../views/analysis/LearningReport.vue'
+import ResourcesOverview from '../views/resources/ResourcesOverview.vue'
+import ResourcesMaterials from '../views/resources/ResourcesMaterials.vue'
+import ResourcesVideos from '../views/resources/ResourcesVideos.vue'
+import ResourcesDocuments from '../views/resources/ResourcesDocuments.vue'
+import ResourcesTemplates from '../views/resources/ResourcesTemplates.vue'
+import ResourcesShared from '../views/resources/ResourcesShared.vue'
+import QuestionsOverview from '../views/questions/QuestionsOverview.vue'
+import QuestionsBank from '../views/questions/QuestionsBank.vue'
+import QuestionsCategory from '../views/questions/QuestionsCategory.vue'
+import QuestionsTags from '../views/questions/QuestionsTags.vue'
 
 const routes = [
   {
@@ -259,6 +269,78 @@ const routes = [
         path: 'analysis/report',
         name: 'LearningReport',
         component: LearningReport
+      },
+
+      // 教学资源子路由
+      {
+        path: 'resources',
+        redirect: 'resources/overview'
+      },
+      {
+        path: 'resources/overview',
+        name: 'ResourcesOverview',
+        component: ResourcesOverview
+      },
+      {
+        path: 'resources/materials',
+        name: 'ResourcesMaterials',
+        component: ResourcesMaterials
+      },
+      {
+        path: 'resources/videos',
+        name: 'ResourcesVideos',
+        component: ResourcesVideos
+      },
+      {
+        path: 'resources/documents',
+        name: 'ResourcesDocuments',
+        component: ResourcesDocuments
+      },
+      {
+        path: 'resources/templates',
+        name: 'ResourcesTemplates',
+        component: ResourcesTemplates
+      },
+      {
+        path: 'resources/shared',
+        name: 'ResourcesShared',
+        component: ResourcesShared
+      },
+
+      // 题库管理子路由
+      {
+        path: 'questions',
+        redirect: 'questions/overview'
+      },
+      {
+        path: 'questions/overview',
+        name: 'QuestionsOverview',
+        component: QuestionsOverview
+      },
+      {
+        path: 'questions/bank',
+        name: 'QuestionsBank',
+        component: QuestionsBank
+      },
+      {
+        path: 'questions/category',
+        name: 'QuestionsCategory',
+        component: QuestionsCategory
+      },
+      {
+        path: 'questions/tags',
+        name: 'QuestionsTags',
+        component: QuestionsTags
+      },
+      {
+        path: 'questions/import',
+        name: 'QuestionsImport',
+        component: () => import('../views/questions/QuestionsImport.vue')
+      },
+      {
+        path: 'questions/export',
+        name: 'QuestionsExport',
+        component: () => import('../views/questions/QuestionsExport.vue')
       }
     ]
   },

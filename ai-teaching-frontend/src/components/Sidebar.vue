@@ -130,40 +130,34 @@ const menuGroups = reactive([
         expanded: false,
         children: [
           {
-            key: 'course-overview',
+            key: 'courses-overview',
             name: '课程概览',
             icon: 'fas fa-tachometer-alt',
             path: '/dashboard/courses/overview'
           },
           {
-            key: 'course-manage',
+            key: 'courses-manage',
             name: '课程管理',
-            icon: 'fas fa-book-open',
+            icon: 'fas fa-list',
             path: '/dashboard/courses/manage'
           },
           {
-            key: 'course-content',
+            key: 'courses-content',
             name: '课程内容',
-            icon: 'fas fa-file-text',
+            icon: 'fas fa-file-alt',
             path: '/dashboard/courses/content'
           },
           {
-            key: 'course-schedule',
+            key: 'courses-schedule',
             name: '课程安排',
             icon: 'fas fa-calendar-alt',
             path: '/dashboard/courses/schedule'
           },
           {
-            key: 'course-students',
+            key: 'courses-students',
             name: '学生管理',
-            icon: 'fas fa-user-graduate',
+            icon: 'fas fa-users',
             path: '/dashboard/courses/students'
-          },
-          {
-            key: 'course-resources',
-            name: '课程资源',
-            icon: 'fas fa-folder-open',
-            path: '/dashboard/courses/resources'
           }
         ]
       },
@@ -194,14 +188,14 @@ const menuGroups = reactive([
           {
             key: 'homework-grades',
             name: '成绩管理',
-            icon: 'fas fa-chart-line',
+            icon: 'fas fa-star',
             path: '/dashboard/homework/grades'
           },
           {
-            key: 'homework-submissions',
+            key: 'homework-statistics',
             name: '提交统计',
             icon: 'fas fa-chart-bar',
-            path: '/dashboard/homework/submissions'
+            path: '/dashboard/homework/statistics'
           },
           {
             key: 'homework-templates',
@@ -214,7 +208,7 @@ const menuGroups = reactive([
       {
         key: 'analysis',
         name: '学情分析',
-        icon: 'fas fa-chart-bar',
+        icon: 'fas fa-chart-line',
         expanded: false,
         children: [
           {
@@ -224,31 +218,31 @@ const menuGroups = reactive([
             path: '/dashboard/analysis/overview'
           },
           {
-            key: 'learning-progress',
+            key: 'analysis-progress',
             name: '学习进度',
             icon: 'fas fa-tasks',
             path: '/dashboard/analysis/progress'
           },
           {
-            key: 'performance-analysis',
+            key: 'analysis-performance',
             name: '成绩分析',
-            icon: 'fas fa-chart-line',
+            icon: 'fas fa-chart-bar',
             path: '/dashboard/analysis/performance'
           },
           {
-            key: 'engagement-analysis',
+            key: 'analysis-engagement',
             name: '参与度分析',
             icon: 'fas fa-user-clock',
             path: '/dashboard/analysis/engagement'
           },
           {
-            key: 'knowledge-map',
+            key: 'analysis-knowledge',
             name: '知识图谱',
             icon: 'fas fa-project-diagram',
             path: '/dashboard/analysis/knowledge'
           },
           {
-            key: 'learning-report',
+            key: 'analysis-report',
             name: '学习报告',
             icon: 'fas fa-file-alt',
             path: '/dashboard/analysis/report'
@@ -262,16 +256,92 @@ const menuGroups = reactive([
     title: '资源中心',
     items: [
       {
-        key: 'teaching-resources',
+        key: 'resources',
         name: '教学资源',
-        icon: 'fas fa-file-alt',
-        path: '/resources/teaching'
+        icon: 'fas fa-archive',
+        expanded: false,
+        children: [
+          {
+            key: 'resources-overview',
+            name: '资源概览',
+            icon: 'fas fa-tachometer-alt',
+            path: '/dashboard/resources/overview'
+          },
+          {
+            key: 'resources-materials',
+            name: '教学材料',
+            icon: 'fas fa-file-alt',
+            path: '/dashboard/resources/materials'
+          },
+          {
+            key: 'resources-videos',
+            name: '视频资源',
+            icon: 'fas fa-video',
+            path: '/dashboard/resources/videos'
+          },
+          {
+            key: 'resources-documents',
+            name: '文档资料',
+            icon: 'fas fa-file-pdf',
+            path: '/dashboard/resources/documents'
+          },
+          {
+            key: 'resources-templates',
+            name: '资源模板',
+            icon: 'fas fa-copy',
+            path: '/dashboard/resources/templates'
+          },
+          {
+            key: 'resources-shared',
+            name: '共享资源',
+            icon: 'fas fa-share-alt',
+            path: '/dashboard/resources/shared'
+          }
+        ]
       },
       {
-        key: 'question-bank',
+        key: 'questions',
         name: '题库管理',
         icon: 'fas fa-question-circle',
-        path: '/resources/questions'
+        expanded: false,
+        children: [
+          {
+            key: 'questions-overview',
+            name: '题库概览',
+            icon: 'fas fa-tachometer-alt',
+            path: '/dashboard/questions/overview'
+          },
+          {
+            key: 'questions-bank',
+            name: '题目管理',
+            icon: 'fas fa-list',
+            path: '/dashboard/questions/bank'
+          },
+          {
+            key: 'questions-category',
+            name: '分类管理',
+            icon: 'fas fa-folder',
+            path: '/dashboard/questions/category'
+          },
+          {
+            key: 'questions-tags',
+            name: '标签管理',
+            icon: 'fas fa-tags',
+            path: '/dashboard/questions/tags'
+          },
+          {
+            key: 'questions-import',
+            name: '题目导入',
+            icon: 'fas fa-file-import',
+            path: '/dashboard/questions/import'
+          },
+          {
+            key: 'questions-export',
+            name: '题目导出',
+            icon: 'fas fa-file-export',
+            path: '/dashboard/questions/export'
+          }
+        ]
       }
     ]
   },
@@ -311,32 +381,32 @@ const menuGroups = reactive([
         children: [
           {
             key: 'permission-overview',
-            name: '管理概览',
+            name: '权限概览',
             icon: 'fas fa-tachometer-alt',
             path: '/dashboard/permission/overview'
           },
           {
-            key: 'menu-management',
-            name: '菜单分配管理',
-            icon: 'fas fa-sitemap',
+            key: 'permission-menu',
+            name: '菜单管理',
+            icon: 'fas fa-bars',
             path: '/dashboard/permission/menu'
           },
           {
-            key: 'route-management',
-            name: '路由分配管理',
+            key: 'permission-route',
+            name: '路由管理',
             icon: 'fas fa-route',
             path: '/dashboard/permission/route'
           },
           {
-            key: 'role-management',
+            key: 'permission-role',
             name: '角色管理',
             icon: 'fas fa-user-tag',
             path: '/dashboard/permission/role'
           },
           {
-            key: 'user-management',
+            key: 'permission-user',
             name: '用户管理',
-            icon: 'fas fa-users',
+            icon: 'fas fa-users-cog',
             path: '/dashboard/permission/user'
           }
         ]
