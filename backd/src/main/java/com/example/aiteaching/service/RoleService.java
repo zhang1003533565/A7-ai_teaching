@@ -30,7 +30,7 @@ public interface RoleService extends IService<Role> {
     boolean deleteRole(Long id);
 
     /**
-     * 根据ID获取角色
+     * 获取角色详情
      */
     Role getRoleById(Long id);
 
@@ -68,4 +68,4 @@ public interface RoleService extends IService<Role> {
      * 移除角色的所有权限
      */
     boolean removeRolePermissions(Long roleId);
-} 
+}
