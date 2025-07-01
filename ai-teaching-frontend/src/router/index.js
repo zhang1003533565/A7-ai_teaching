@@ -440,6 +440,11 @@ const routes = [
         path: 'ai/recommend/plan',
         name: 'RecommendPlan',
         component: RecommendPlan
+      },
+      {
+        path: 'homework/statistics',
+        name: 'HomeworkSubmissions',
+        component: HomeworkSubmissions
       }
     ]
   },
