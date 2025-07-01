@@ -21,7 +21,10 @@ public class User {
     
     private String password;
     
+    @TableField("real_name")
     private String realName;
+    
+    private String avatar;
     
     private String email;
     
@@ -31,16 +34,17 @@ public class User {
     
     private Integer status;
     
-    private String avatar;
+    @TableLogic(value = "0", delval = "1")
+    private Integer isDeleted;
     
     @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createdAt;
+    private LocalDateTime createTime;
     
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updateTime;
     
-    @TableLogic
-    private Integer isDeleted;
+    @TableField(fill = FieldFill.UPDATE)
+    private LocalDateTime deleteTime;
     
     /**
      * 用户角色列表（非数据库字段）

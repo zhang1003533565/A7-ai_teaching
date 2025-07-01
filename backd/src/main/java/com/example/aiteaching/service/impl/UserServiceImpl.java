@@ -18,6 +18,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.DigestUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -136,15 +137,19 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        // 验证用户是否存在
         User user = userMapper.selectById(id);
-        Assert.notNull(user, "用户不存在");
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        
+        // 执行逻辑删除
+        int rows = userMapper.logicalDelete(id, LocalDateTime.now());
+        if (rows != 1) {
+            throw new RuntimeException("删除用户失败");
+        }
         
         // 删除用户角色关联
-        unbindUserRoles(id);
-        
-        // 删除用户
-        userMapper.deleteById(id);
+        userRoleMapper.deleteByUserId(id);
     }
 
     @Override

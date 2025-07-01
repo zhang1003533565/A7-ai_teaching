@@ -3,7 +3,7 @@
 <mapper namespace="com.example.aiteaching.mapper.UserRoleMapper">
 
     <insert id="insertBatch">
-        INSERT INTO sys_user_role (user_id, role_id, created_at)
+        INSERT INTO sys_user_role (user_id, role_id, create_time)
         VALUES
         <foreach collection="list" item="item" separator=",">
             (#{item.userId}, #{item.roleId}, NOW())
