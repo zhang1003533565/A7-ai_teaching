@@ -429,7 +429,39 @@ const menuGroups = reactive([
         key: 'ai-recommend',
         name: '学习推荐',
         icon: 'fas fa-lightbulb',
-        path: '/ai/recommend'
+        expanded: false,
+        children: [
+          {
+            key: 'ai-recommend-overview',
+            name: '推荐概览',
+            icon: 'fas fa-tachometer-alt',
+            path: '/dashboard/ai/recommend/overview'
+          },
+          {
+            key: 'ai-recommend-course',
+            name: '课程推荐',
+            icon: 'fas fa-book',
+            path: '/dashboard/ai/recommend/course'
+          },
+          {
+            key: 'ai-recommend-resource',
+            name: '资源推荐',
+            icon: 'fas fa-file-alt',
+            path: '/dashboard/ai/recommend/resource'
+          },
+          {
+            key: 'ai-recommend-exercise',
+            name: '练习推荐',
+            icon: 'fas fa-tasks',
+            path: '/dashboard/ai/recommend/exercise'
+          },
+          {
+            key: 'ai-recommend-plan',
+            name: '学习计划',
+            icon: 'fas fa-calendar-alt',
+            path: '/dashboard/ai/recommend/plan'
+          }
+        ]
       }
     ]
   },

@@ -60,6 +60,13 @@ import GradingExam from '../views/ai/grading/GradingExam.vue'
 import GradingCode from '../views/ai/grading/GradingCode.vue'
 import GradingTemplate from '../views/ai/grading/GradingTemplate.vue'
 
+// 学习推荐
+import RecommendOverview from '../views/ai/recommend/RecommendOverview.vue'
+import RecommendCourse from '../views/ai/recommend/RecommendCourse.vue'
+import RecommendResource from '../views/ai/recommend/RecommendResource.vue'
+import RecommendExercise from '../views/ai/recommend/RecommendExercise.vue'
+import RecommendPlan from '../views/ai/recommend/RecommendPlan.vue'
+
 const routes = [
   {
     path: '/',
@@ -407,6 +414,32 @@ const routes = [
         path: 'ai/grading/template',
         name: 'ai-grading-template',
         component: GradingTemplate
+      },
+      // 学习推荐
+      {
+        path: 'ai/recommend/overview',
+        name: 'RecommendOverview',
+        component: RecommendOverview
+      },
+      {
+        path: 'ai/recommend/course',
+        name: 'RecommendCourse',
+        component: RecommendCourse
+      },
+      {
+        path: 'ai/recommend/resource',
+        name: 'RecommendResource',
+        component: RecommendResource
+      },
+      {
+        path: 'ai/recommend/exercise',
+        name: 'RecommendExercise',
+        component: RecommendExercise
+      },
+      {
+        path: 'ai/recommend/plan',
+        name: 'RecommendPlan',
+        component: RecommendPlan
       }
     ]
   },
