@@ -353,7 +353,39 @@ const menuGroups = reactive([
         key: 'ai-chat',
         name: 'AI对话',
         icon: 'fas fa-robot',
-        path: '/ai/chat'
+        expanded: false,
+        children: [
+          {
+            key: 'ai-chat-assistant',
+            name: '智能助教',
+            icon: 'fas fa-user-graduate',
+            path: '/dashboard/ai/assistant'
+          },
+          {
+            key: 'ai-chat-qa',
+            name: '问答系统',
+            icon: 'fas fa-question-circle',
+            path: '/dashboard/ai/qa'
+          },
+          {
+            key: 'ai-chat-writing',
+            name: '写作助手',
+            icon: 'fas fa-pen-fancy',
+            path: '/dashboard/ai/writing'
+          },
+          {
+            key: 'ai-chat-analysis',
+            name: '解题分析',
+            icon: 'fas fa-chart-line',
+            path: '/dashboard/ai/analysis'
+          },
+          {
+            key: 'ai-chat-history',
+            name: '对话历史',
+            icon: 'fas fa-history',
+            path: '/dashboard/ai/history'
+          }
+        ]
       },
       {
         key: 'ai-grading',

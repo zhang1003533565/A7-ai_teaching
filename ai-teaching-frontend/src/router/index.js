@@ -46,6 +46,13 @@ import QuestionsBank from '../views/questions/QuestionsBank.vue'
 import QuestionsCategory from '../views/questions/QuestionsCategory.vue'
 import QuestionsTags from '../views/questions/QuestionsTags.vue'
 
+// AI对话相关组件
+import AIChatAssistant from '../views/ai/AIChatAssistant.vue'
+import AIChatQA from '../views/ai/AIChatQA.vue'
+import AIChatWriting from '../views/ai/AIChatWriting.vue'
+import AIChatAnalysis from '../views/ai/AIChatAnalysis.vue'
+import AIChatHistory from '../views/ai/AIChatHistory.vue'
+
 const routes = [
   {
     path: '/',
@@ -341,6 +348,32 @@ const routes = [
         path: 'questions/export',
         name: 'QuestionsExport',
         component: () => import('../views/questions/QuestionsExport.vue')
+      },
+      // AI对话相关路由
+      {
+        path: 'ai/assistant',
+        name: 'ai-chat-assistant',
+        component: AIChatAssistant
+      },
+      {
+        path: 'ai/qa',
+        name: 'ai-chat-qa',
+        component: AIChatQA
+      },
+      {
+        path: 'ai/writing',
+        name: 'ai-chat-writing',
+        component: AIChatWriting
+      },
+      {
+        path: 'ai/analysis',
+        name: 'ai-chat-analysis',
+        component: AIChatAnalysis
+      },
+      {
+        path: 'ai/history',
+        name: 'ai-chat-history',
+        component: AIChatHistory
       }
     ]
   },
