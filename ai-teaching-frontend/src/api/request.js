@@ -8,7 +8,9 @@ const service = axios.create({
   timeout: config.timeout,
   headers: {
     'Content-Type': 'application/json;charset=utf-8'
-  }
+  },
+  // 允许跨域携带cookie
+  withCredentials: true
 })
 
 // 请求拦截器
@@ -19,6 +21,7 @@ service.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
+    console.log('请求配置：', config);
     return config
   },
   error => {
@@ -31,52 +34,45 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const res = response.data
-    // 这里可以根据后端返回的状态码进行判断
-    if (res.code === 200) {
-      return res.data // 直接返回数据部分
-    } else {
-      // 处理其他状态码
-      switch (res.code) {
-        case 401:
-          // token过期或未登录
-          localStorage.removeItem('token')
-          router.push('/login')
-          break
-        case 403:
-          // 权限不足
-          console.error('权限不足')
-          break
-        default:
-          console.error(res.message || '未知错误')
+    console.log('响应数据：', res);
+    // 如果是直接返回的数据，包装一下
+    if (!res.hasOwnProperty('code')) {
+      return {
+        code: 200,
+        data: res,
+        message: 'success'
       }
-      return Promise.reject(new Error(res.message || '未知错误'))
     }
+    // 如果返回的code不是200，说明有错误
+    if (res.code !== 200) {
+      return Promise.reject(new Error(res.message || '操作失败'));
+    }
+    return res;  // 返回完整的响应数据
   },
   error => {
     console.error('响应错误：', error)
+    let message = '网络异常'
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          // 未授权，清除token并跳转到登录页面
+          message = '未授权，请重新登录'
           localStorage.removeItem('token')
           router.push('/login')
           break
         case 403:
-          console.error('权限不足')
+          message = '权限不足'
           break
         case 404:
-          console.error('请求的资源不存在')
+          message = '请求的资源不存在'
           break
         case 500:
-          console.error('服务器错误')
+          message = error.response.data?.message || '服务器错误'
           break
         default:
-          console.error(`连接错误 ${error.response.status}`)
+          message = `连接错误 ${error.response.status}`
       }
-    } else {
-      console.error('网络异常')
     }
-    return Promise.reject(error)
+    return Promise.reject(new Error(message))
   }
 )
 

@@ -422,10 +422,20 @@ const loadRoleList = async () => {
       roleName: searchForm.roleName,
       roleCode: searchForm.roleCode
     };
+    console.log('请求参数：', params);
     const res = await getRolePage(params);
-    roleList.value = res.records;
-    pagination.total = res.total;
+    console.log('获取到的角色列表：', res);
+    if (res && res.data) {
+      roleList.value = res.data.records || [];
+      pagination.total = res.data.total || 0;
+      pagination.current = res.data.current;
+      pagination.size = res.data.size;
+    } else {
+      console.error('角色列表数据格式不正确:', res);
+      ElMessage.warning('获取角色列表数据格式不正确');
+    }
   } catch (error) {
+    console.error('获取角色列表失败：', error);
     ElMessage.error('获取角色列表失败：' + error.message);
   }
 };

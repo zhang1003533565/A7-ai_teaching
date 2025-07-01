@@ -17,7 +17,7 @@
       </div>
       <div class="flex space-x-3">
         <button 
-          @click="showAddDialog = true"
+          @click="handleAdd"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
         >
           <i class="fas fa-plus mr-2"></i>
@@ -42,7 +42,7 @@
             v-model="searchForm.username"
             type="text" 
             placeholder="搜索用户名"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
           />
         </div>
         <div>
@@ -51,14 +51,14 @@
             v-model="searchForm.realName"
             type="text" 
             placeholder="搜索真实姓名"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
           />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">角色</label>
           <select 
             v-model="searchForm.roleId"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
             <option value="">全部角色</option>
             <option v-for="role in roleList" :key="role.id" :value="role.id">
@@ -70,7 +70,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
           <select 
             v-model="searchForm.status"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
             <option value="">全部状态</option>
             <option value="1">启用</option>
@@ -150,27 +150,25 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex space-x-2">
                   <button 
-                    @click="editUser(user)"
-                    class="text-blue-600 hover:text-blue-900"
+                    @click="handleEdit(user)"
+                    class="bg-blue-100 text-blue-700 px-2 py-1 rounded-md hover:bg-blue-200 transition-colors flex items-center"
                   >
+                    <i class="fas fa-edit mr-1"></i>
                     编辑
                   </button>
                   <button 
-                    @click="assignRoles(user)"
-                    class="text-green-600 hover:text-green-900"
-                  >
-                    分配角色
-                  </button>
-                  <button 
                     @click="resetPassword(user)"
-                    class="text-orange-600 hover:text-orange-900"
+                    class="bg-[#FFF3E0] text-[#E65100] px-2 py-1 rounded-md hover:bg-[#FFE0B2] transition-colors flex items-center"
+                    style="background-color: #FFF3E0; color: #E65100;"
                   >
+                    <i class="fas fa-key mr-1"></i>
                     重置密码
                   </button>
                   <button 
-                    @click="deleteUser(user)"
-                    class="text-red-600 hover:text-red-900"
+                    @click="handleDelete(user)"
+                    class="bg-red-100 text-red-700 px-2 py-1 rounded-md hover:bg-red-200 transition-colors flex items-center"
                   >
+                    <i class="fas fa-trash-alt mr-1"></i>
                     删除
                   </button>
                 </div>
@@ -181,70 +179,118 @@
       </div>
       
       <!-- 分页 -->
-      <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-        <div class="text-sm text-gray-700">
-          显示 {{ (currentPage - 1) * pageSize + 1 }} 到 {{ Math.min(currentPage * pageSize, totalRecords) }} 条，共 {{ totalRecords }} 条记录
-        </div>
-        <div class="flex space-x-2">
-          <button 
-            @click="prevPage" 
-            :disabled="currentPage === 1"
-            class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
-          >
-            上一页
-          </button>
-          <span class="px-3 py-1 text-sm">{{ currentPage }} / {{ totalPages }}</span>
-          <button 
-            @click="nextPage" 
-            :disabled="currentPage === totalPages"
-            class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
-          >
-            下一页
-          </button>
-        </div>
+      <div class="px-6 py-4 border-t border-gray-200">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+          layout="total, sizes, prev, pager, next"
+          background
+          class="flex justify-end"
+        />
       </div>
     </div>
 
     <!-- 新增/编辑用户对话框 -->
-    <div v-if="showAddDialog || showEditDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="dialogVisible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 w-full max-w-lg">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">
-          {{ showAddDialog ? '新增用户' : '编辑用户' }}
+        <h3 class="text-lg font-semibold mb-4 text-gray-900">
+          {{ isEdit ? '编辑用户' : '新增用户' }}
         </h3>
-        <form @submit.prevent="submitForm">
+        <form @submit.prevent="submitForm" autocomplete="off">
           <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">用户名 *</label>
-                <input v-model="userForm.username" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+                <input 
+                  v-model="userForm.username" 
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" 
+                  required 
+                  autocomplete="off"
+                />
               </div>
               
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">真实姓名 *</label>
-                <input v-model="userForm.realName" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+                <input 
+                  v-model="userForm.realName" 
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" 
+                  required 
+                  autocomplete="off"
+                />
               </div>
             </div>
             
-            <div v-if="showAddDialog">
+            <div v-if="!isEdit">
               <label class="block text-sm font-medium text-gray-700 mb-1">密码 *</label>
-              <input v-model="userForm.password" type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              <div class="relative">
+                <input 
+                  v-model="userForm.password" 
+                  :type="showPassword ? 'text' : 'password'" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" 
+                  required 
+                  autocomplete="new-password"
+                />
+                <button 
+                  type="button"
+                  class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  @click="showPassword = !showPassword"
+                >
+                  <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                </button>
+              </div>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
-                <input v-model="userForm.email" type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input 
+                  v-model="userForm.email" 
+                  type="email" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" 
+                  autocomplete="off"
+                />
               </div>
               
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">手机号</label>
-                <input v-model="userForm.phone" type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input 
+                  v-model="userForm.phone" 
+                  type="tel" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" 
+                  autocomplete="off"
+                />
               </div>
             </div>
             
+            <!-- 添加角色选择 -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                用户角色 *
+              </label>
+              <select 
+                v-model="userForm.roleIds" 
+                multiple
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                required
+              >
+                <option v-for="role in roleOptions" :key="role.id" :value="role.id">
+                  {{ role.roleName }}
+                </option>
+              </select>
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
-              <select v-model="userForm.status" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+              <select 
+                v-model="userForm.status" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              >
                 <option value="1">启用</option>
                 <option value="0">禁用</option>
               </select>
@@ -252,63 +298,46 @@
           </div>
           
           <div class="mt-6 flex justify-end space-x-3">
-            <button type="button" @click="cancelForm" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+            <button 
+              type="button" 
+              @click="handleCancel" 
+              class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none"
+            >
               取消
             </button>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              {{ showAddDialog ? '新增' : '保存' }}
+            <button 
+              type="submit" 
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none"
+            >
+              {{ isEdit ? '保存' : '新增' }}
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- 角色分配对话框 -->
-    <div v-if="showRoleDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">角色分配 - {{ selectedUser.realName || selectedUser.username }}</h3>
-        <div class="space-y-3">
-          <div v-for="role in roleList" :key="role.id" class="flex items-center">
-            <input 
-              :id="'role-' + role.id"
-              v-model="selectedUser.assignedRoles"
-              :value="role.id"
-              type="checkbox" 
-              class="h-4 w-4 text-blue-600 rounded"
-            />
-            <label :for="'role-' + role.id" class="ml-2 text-sm text-gray-700">
-              {{ role.roleName }}
-              <span class="text-xs text-gray-500">({{ role.roleCode }})</span>
-            </label>
-          </div>
-        </div>
-        
-        <div class="mt-6 flex justify-end space-x-3">
-          <button @click="showRoleDialog = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
-            取消
-          </button>
-          <button @click="saveUserRoles" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            保存
-          </button>
-        </div>
-      </div>
+    <!-- 添加loading状态 -->
+    <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
+import { addUser, updateUser, deleteUser as deleteUserApi, getUser as getUserApi, listUsers as listUsersApi, getUserPage, resetPassword as resetUserPassword } from '@/api/user';
+import { getRolePage } from '@/api/role';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 // 状态管理
-const showAddDialog = ref(false);
-const showEditDialog = ref(false);
-const showRoleDialog = ref(false);
+const dialogVisible = ref(false);
+const isEdit = ref(false);
 const userList = ref([]);
 const roleList = ref([]);
-const selectedUser = ref({});
 const currentPage = ref(1);
 const pageSize = ref(10);
-const totalRecords = ref(0);
+const total = ref(0);
+const loading = ref(false);
 
 // 搜索表单
 const searchForm = reactive({
@@ -319,192 +348,249 @@ const searchForm = reactive({
 });
 
 // 用户表单
-const userForm = reactive({
-  id: null,
+const userForm = ref({
   username: '',
-  realName: '',
   password: '',
+  realName: '',
   email: '',
   phone: '',
-  status: 1
+  status: '1',
+  roleIds: []
 });
 
 // 计算属性
-const totalPages = computed(() => Math.ceil(totalRecords.value / pageSize.value));
+const totalPages = computed(() => Math.ceil(total.value / pageSize.value));
 
-// 模拟用户数据
-const mockUserData = ref([
-  {
-    id: 1,
-    username: 'admin',
-    realName: '系统管理员',
-    email: 'admin@example.com',
-    phone: '13800138000',
-    status: 1,
-    lastLoginTime: '2024-01-15 10:30:00',
-    createTime: '2024-01-01 00:00:00',
-    roles: [
-      { id: 1, roleName: '超级管理员', roleCode: 'super_admin' }
-    ]
-  },
-  {
-    id: 2,
-    username: 'teacher001',
-    realName: '张老师',
-    email: 'zhang@example.com',
-    phone: '13800138001',
-    status: 1,
-    lastLoginTime: '2024-01-15 09:15:00',
-    createTime: '2024-01-02 10:00:00',
-    roles: [
-      { id: 3, roleName: '教师', roleCode: 'teacher' }
-    ]
-  },
-  {
-    id: 3,
-    username: 'student001',
-    realName: '李小明',
-    email: 'li@example.com',
-    phone: '13800138002',
-    status: 1,
-    lastLoginTime: '2024-01-15 08:45:00',
-    createTime: '2024-01-03 09:00:00',
-    roles: [
-      { id: 4, roleName: '学生', roleCode: 'student' }
-    ]
-  },
-  {
-    id: 4,
-    username: 'teacher002',
-    realName: '王老师',
-    email: 'wang@example.com',
-    phone: '13800138003',
-    status: 1,
-    lastLoginTime: '2024-01-14 16:20:00',
-    createTime: '2024-01-03 14:30:00',
-    roles: [
-      { id: 3, roleName: '教师', roleCode: 'teacher' }
-    ]
-  },
-  {
-    id: 5,
-    username: 'student002',
-    realName: '张小红',
-    email: 'zhanghong@example.com',
-    phone: '13800138004',
-    status: 0,
-    lastLoginTime: '2024-01-10 11:30:00',
-    createTime: '2024-01-04 10:15:00',
-    roles: [
-      { id: 4, roleName: '学生', roleCode: 'student' }
-    ]
-  }
-]);
+// 添加密码显示/隐藏状态
+const showPassword = ref(false);
 
-const mockRoleData = ref([
-  { id: 1, roleName: '超级管理员', roleCode: 'super_admin' },
-  { id: 2, roleName: '系统管理员', roleCode: 'admin' },
-  { id: 3, roleName: '教师', roleCode: 'teacher' },
-  { id: 4, roleName: '学生', roleCode: 'student' }
-]);
+// 角色选项
+const roleOptions = ref([]);
 
 // 方法
-const refreshUsers = () => {
-  userList.value = [...mockUserData.value];
-  totalRecords.value = mockUserData.value.length;
-};
-
-const searchUsers = () => {
-  console.log('搜索用户', searchForm);
-  // 这里应该调用API进行搜索
-};
-
-const editUser = (user) => {
-  Object.assign(userForm, user);
-  delete userForm.password; // 编辑时不显示密码字段
-  showEditDialog.value = true;
-};
-
-const deleteUser = (user) => {
-  if (user.username === 'admin') {
-    alert('超级管理员账号不能删除！');
-    return;
-  }
-  
-  if (confirm(`确定要删除用户"${user.realName || user.username}"吗？`)) {
-    console.log('删除用户', user);
-    // 这里应该调用删除API
+const refreshUsers = async () => {
+  try {
+    loading.value = true;
+    const response = await getUserPage({
+      current: currentPage.value,
+      size: pageSize.value
+    });
+    if (response && response.data && response.data.records) {
+      userList.value = response.data.records;
+      total.value = response.data.total;
+    } else {
+      console.error('用户数据格式不正确:', response);
+      ElMessage.warning('获取用户列表数据格式不正确');
+    }
+  } catch (error) {
+    console.error('获取用户列表失败:', error);
+    ElMessage.error('获取用户列表失败');
+  } finally {
+    loading.value = false;
   }
 };
 
-const assignRoles = (user) => {
-  selectedUser.value = { 
-    ...user, 
-    assignedRoles: user.roles ? user.roles.map(role => role.id) : []
+const searchUsers = async () => {
+  // 由于后端暂未提供搜索接口，这里先在前端进行过滤
+  try {
+    loading.value = true;
+    const res = await listUsersApi();
+    if (res && res.code === 200 && res.data) {
+      let filteredUsers = res.data;
+      
+      if (searchForm.username) {
+        filteredUsers = filteredUsers.filter(user => 
+          user.username.toLowerCase().includes(searchForm.username.toLowerCase())
+        );
+      }
+      
+      if (searchForm.realName) {
+        filteredUsers = filteredUsers.filter(user => 
+          user.realName && user.realName.includes(searchForm.realName)
+        );
+      }
+      
+      if (searchForm.roleId) {
+        filteredUsers = filteredUsers.filter(user => 
+          user.roleIds && user.roleIds.includes(Number(searchForm.roleId))
+        );
+      }
+      
+      if (searchForm.status !== '') {
+        filteredUsers = filteredUsers.filter(user => 
+          user.status === Number(searchForm.status)
+        );
+      }
+      
+      userList.value = filteredUsers;
+      total.value = filteredUsers.length;
+    }
+  } catch (error) {
+    ElMessage.error('搜索用户失败');
+    console.error('搜索用户错误:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleAdd = () => {
+  resetForm();
+  dialogVisible.value = true;
+  isEdit.value = false;
+};
+
+const handleEdit = (row) => {
+  userForm.value = {
+    ...row,
+    password: '', // 编辑时不显示密码
+    roleIds: row.roleIds || [] // 确保roleIds存在
   };
-  showRoleDialog.value = true;
+  dialogVisible.value = true;
+  isEdit.value = true;
 };
 
-const resetPassword = (user) => {
-  if (confirm(`确定要重置用户"${user.realName || user.username}"的密码吗？新密码将设为默认密码123456。`)) {
-    console.log('重置密码', user);
-    // 这里应该调用重置密码API
-    alert('密码重置成功！新密码为：123456');
+const handleDelete = async (row) => {
+  try {
+    await ElMessageBox.confirm('确认删除该用户吗？', '提示', {
+      type: 'warning'
+    });
+    await deleteUserApi(row.id);
+    ElMessage.success('删除成功');
+    await refreshUsers();
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除用户错误:', error);
+      ElMessage.error('删除失败');
+    }
   }
 };
 
-const saveUserRoles = () => {
-  console.log('保存用户角色', {
-    userId: selectedUser.value.id,
-    roleIds: selectedUser.value.assignedRoles
-  });
-  // 这里应该调用API保存用户角色
-  showRoleDialog.value = false;
-};
-
-const submitForm = () => {
-  if (showAddDialog.value) {
-    console.log('新增用户', userForm);
-    // 调用新增API
-  } else {
-    console.log('更新用户', userForm);
-    // 调用更新API
-  }
-  cancelForm();
-};
-
-const cancelForm = () => {
-  showAddDialog.value = false;
-  showEditDialog.value = false;
+const handleCancel = () => {
+  dialogVisible.value = false;
   resetForm();
 };
 
-const resetForm = () => {
-  Object.assign(userForm, {
-    id: null,
-    username: '',
-    realName: '',
-    password: '',
-    email: '',
-    phone: '',
-    status: 1
-  });
-};
+const submitForm = async () => {
+  try {
+    // 表单验证
+    if (!userForm.value.username) {
+      ElMessage.warning('请输入用户名');
+      return;
+    }
+    if (!userForm.value.realName) {
+      ElMessage.warning('请输入真实姓名');
+      return;
+    }
+    if (!isEdit.value && !userForm.value.password) {
+      ElMessage.warning('请输入密码');
+      return;
+    }
+    if (!userForm.value.roleIds || userForm.value.roleIds.length === 0) {
+      ElMessage.warning('请选择至少一个角色');
+      return;
+    }
 
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
+    loading.value = true;
+    // 创建一个普通对象来存储表单数据
+    const formData = {
+      id: isEdit.value ? userForm.value.id : undefined,  // 编辑时需要传id
+      username: userForm.value.username,
+      realName: userForm.value.realName,
+      email: userForm.value.email,
+      phone: userForm.value.phone,
+      status: parseInt(userForm.value.status),  // 转换为数字
+      roleIds: userForm.value.roleIds
+    };
+
+    // 只在新增用户时添加密码字段
+    if (!isEdit.value) {
+      formData.password = userForm.value.password;
+    }
+
+    if (isEdit.value) {
+      await updateUser(formData);
+      ElMessage.success('更新用户成功');
+    } else {
+      await addUser(formData);
+      ElMessage.success('新增用户成功');
+    }
+    dialogVisible.value = false;
+    await refreshUsers();
+  } catch (error) {
+    console.error(isEdit.value ? '更新用户错误:' : '新增用户错误:', error);
+    ElMessage.error(error.response?.data?.message || (isEdit.value ? '更新用户失败' : '新增用户失败'));
+  } finally {
+    loading.value = false;
   }
 };
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
+const resetForm = () => {
+  userForm.value = {
+    username: '',
+    password: '',
+    realName: '',
+    email: '',
+    phone: '',
+    status: '1',
+    roleIds: []
+  };
+};
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  refreshUsers();
+};
+
+const handleSizeChange = (size) => {
+  pageSize.value = size;
+  currentPage.value = 1;
+  refreshUsers();
+};
+
+// 获取角色列表
+const fetchRoles = async () => {
+  try {
+    const response = await getRolePage({
+      current: 1,
+      size: 100  // 获取足够多的角色
+    });
+    if (response && response.data && response.data.records) {
+      roleOptions.value = response.data.records;
+      roleList.value = response.data.records;  // 同时更新roleList，因为搜索框也需要用到
+    } else {
+      console.error('角色数据格式不正确:', response);
+      ElMessage.warning('获取角色列表数据格式不正确');
+    }
+  } catch (error) {
+    console.error('获取角色列表失败:', error);
+    ElMessage.error('获取角色列表失败');
+  }
+};
+
+const resetPassword = async (user) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要重置用户"${user.realName || user.username}"的密码吗？新密码将设为默认密码123456。`,
+      '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    );
+    
+    await resetUserPassword(user.id);
+    ElMessage.success('密码重置成功！新密码为：123456');
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('重置密码错误:', error);
+      ElMessage.error('重置密码失败');
+    }
   }
 };
 
 onMounted(() => {
   refreshUsers();
-  roleList.value = [...mockRoleData.value];
+  fetchRoles();  // 组件加载时获取角色列表
 });
 </script> 
