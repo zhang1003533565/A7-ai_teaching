@@ -39,7 +39,7 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">角色名称</label>
           <input 
-            v-model="searchForm.name"
+            v-model="searchForm.roleName"
             type="text" 
             placeholder="搜索角色名称"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -48,7 +48,7 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">角色编码</label>
           <input 
-            v-model="searchForm.code"
+            v-model="searchForm.roleCode"
             type="text" 
             placeholder="搜索角色编码"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -154,6 +154,19 @@
       </div>
     </div>
 
+    <!-- 分页 -->
+    <div class="flex justify-center mt-6">
+      <el-pagination
+        v-model:current-page="pagination.current"
+        v-model:page-size="pagination.size"
+        :total="pagination.total"
+        :page-sizes="[10, 20, 50, 100]"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="loadRoleList"
+        @current-change="loadRoleList"
+      />
+    </div>
+
     <!-- 新增/编辑角色对话框 -->
     <div v-if="showAddDialog || showEditDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 w-full max-w-md">
@@ -164,28 +177,53 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">角色名称 *</label>
-              <input v-model="roleForm.roleName" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              <input 
+                v-model="roleForm.roleName" 
+                type="text" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white" 
+                required 
+                placeholder="请输入角色名称"
+              />
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">角色编码 *</label>
-              <input v-model="roleForm.roleCode" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              <input 
+                v-model="roleForm.roleCode" 
+                type="text" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white" 
+                required 
+                placeholder="请输入角色编码"
+              />
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">角色描述</label>
-              <textarea v-model="roleForm.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+              <textarea 
+                v-model="roleForm.description" 
+                rows="3" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white" 
+                placeholder="请输入角色描述"
+              ></textarea>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">排序</label>
-                <input v-model="roleForm.sort" type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input 
+                  v-model="roleForm.sort" 
+                  type="number" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white" 
+                  placeholder="请输入排序号"
+                />
               </div>
               
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
-                <select v-model="roleForm.status" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                <select 
+                  v-model="roleForm.status" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                >
                   <option value="1">启用</option>
                   <option value="0">禁用</option>
                 </select>
@@ -194,10 +232,17 @@
           </div>
           
           <div class="mt-6 flex justify-end space-x-3">
-            <button type="button" @click="cancelForm" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+            <button 
+              type="button" 
+              @click="cancelForm" 
+              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            >
               取消
             </button>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button 
+              type="submit" 
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
               {{ showAddDialog ? '新增' : '保存' }}
             </button>
           </div>
@@ -329,6 +374,8 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
+import { createRole, updateRole, deleteRole as deleteRoleApi, getRole, getRolePage } from '@/api/role';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 // 状态管理
 const showAddDialog = ref(false);
@@ -342,10 +389,17 @@ const selectedRole = ref({});
 const selectedMenuPermissions = ref([]);
 const selectedRoutePermissions = ref([]);
 
+// 分页参数
+const pagination = reactive({
+  current: 1,
+  size: 10,
+  total: 0
+});
+
 // 搜索表单
 const searchForm = reactive({
-  name: '',
-  code: '',
+  roleName: '',
+  roleCode: '',
   status: ''
 });
 
@@ -359,219 +413,83 @@ const roleForm = reactive({
   status: 1
 });
 
-// 模拟角色数据
-const mockRoleData = ref([
-  {
-    id: 1,
-    roleName: '超级管理员',
-    roleCode: 'super_admin',
-    description: '拥有系统所有权限的超级管理员',
-    sort: 1,
-    status: 1,
-    userCount: 1,
-    permissionCount: 28,
-    createTime: '2024-01-01 00:00:00'
-  },
-  {
-    id: 2,
-    roleName: '系统管理员',
-    roleCode: 'admin',
-    description: '负责系统管理和维护的管理员',
-    sort: 2,
-    status: 1,
-    userCount: 3,
-    permissionCount: 20,
-    createTime: '2024-01-02 10:00:00'
-  },
-  {
-    id: 3,
-    roleName: '教师',
-    roleCode: 'teacher',
-    description: '教学人员，负责课程管理和教学活动',
-    sort: 3,
-    status: 1,
-    userCount: 156,
-    permissionCount: 12,
-    createTime: '2024-01-03 09:00:00'
-  },
-  {
-    id: 4,
-    roleName: '学生',
-    roleCode: 'student',
-    description: '学习者，可以参与课程学习和作业提交',
-    sort: 4,
-    status: 1,
-    userCount: 2489,
-    permissionCount: 6,
-    createTime: '2024-01-03 09:30:00'
+// 加载角色列表
+const loadRoleList = async () => {
+  try {
+    const params = {
+      current: pagination.current,
+      size: pagination.size,
+      roleName: searchForm.roleName,
+      roleCode: searchForm.roleCode
+    };
+    const res = await getRolePage(params);
+    roleList.value = res.records;
+    pagination.total = res.total;
+  } catch (error) {
+    ElMessage.error('获取角色列表失败：' + error.message);
   }
-]);
+};
 
-// 模拟菜单权限树数据
-const mockMenuPermissionTree = ref([
-  {
-    id: 1,
-    permissionName: '首页',
-    permissionCode: 'dashboard',
-    permissionType: 1,
-    icon: 'fas fa-home',
-    children: []
-  },
-  {
-    id: 2,
-    permissionName: '教学管理',
-    permissionCode: 'teaching',
-    permissionType: 1,
-    icon: 'fas fa-chalkboard-teacher',
-    children: [
-      {
-        id: 6,
-        permissionName: '我的课程',
-        permissionCode: 'teaching:course',
-        permissionType: 1,
-        icon: 'fas fa-book-open'
-      },
-      {
-        id: 7,
-        permissionName: '作业管理',
-        permissionCode: 'teaching:homework',
-        permissionType: 1,
-        icon: 'fas fa-tasks'
-      },
-      {
-        id: 8,
-        permissionName: '学情分析',
-        permissionCode: 'teaching:analysis',
-        permissionType: 1,
-        icon: 'fas fa-chart-bar'
-      }
-    ]
-  },
-  {
-    id: 3,
-    permissionName: '资源中心',
-    permissionCode: 'resource',
-    permissionType: 1,
-    icon: 'fas fa-folder-open',
-    children: [
-      {
-        id: 9,
-        permissionName: '教学资源',
-        permissionCode: 'resource:teaching',
-        permissionType: 1,
-        icon: 'fas fa-file-alt'
-      },
-      {
-        id: 10,
-        permissionName: '题库管理',
-        permissionCode: 'resource:question',
-        permissionType: 1,
-        icon: 'fas fa-question-circle'
-      }
-    ]
-  },
-  {
-    id: 5,
-    permissionName: '系统管理',
-    permissionCode: 'system',
-    permissionType: 1,
-    icon: 'fas fa-cogs',
-    children: [
-      {
-        id: 16,
-        permissionName: '用户管理',
-        permissionCode: 'system:user',
-        permissionType: 1,
-        icon: 'fas fa-users'
-      },
-      {
-        id: 17,
-        permissionName: '角色管理',
-        permissionCode: 'system:role',
-        permissionType: 1,
-        icon: 'fas fa-user-tag'
-      },
-      {
-        id: 18,
-        permissionName: '权限管理',
-        permissionCode: 'system:permission',
-        permissionType: 1,
-        icon: 'fas fa-shield-alt'
-      }
-    ]
-  }
-]);
+// 刷新角色列表
+const refreshRoles = () => {
+  loadRoleList();
+};
 
-// 模拟路由权限数据
-const mockRoutePermissionList = ref([
-  {
-    id: 1,
-    module: '用户管理',
-    moduleName: 'user',
-    icon: 'fas fa-users',
-    routes: [
-      { id: 101, name: '用户列表', code: 'user:list', type: 'view', description: '查看用户列表' },
-      { id: 102, name: '新增用户', code: 'user:create', type: 'create', description: '创建新用户' },
-      { id: 103, name: '编辑用户', code: 'user:update', type: 'update', description: '修改用户信息' },
-      { id: 104, name: '删除用户', code: 'user:delete', type: 'delete', description: '删除用户' },
-      { id: 105, name: '重置密码', code: 'user:reset', type: 'action', description: '重置用户密码' },
-      { id: 106, name: '分配角色', code: 'user:assign', type: 'action', description: '为用户分配角色' }
-    ]
-  },
-  {
-    id: 2,
-    module: '角色管理',
-    moduleName: 'role',
-    icon: 'fas fa-user-tag',
-    routes: [
-      { id: 201, name: '角色列表', code: 'role:list', type: 'view', description: '查看角色列表' },
-      { id: 202, name: '新增角色', code: 'role:create', type: 'create', description: '创建新角色' },
-      { id: 203, name: '编辑角色', code: 'role:update', type: 'update', description: '修改角色信息' },
-      { id: 204, name: '删除角色', code: 'role:delete', type: 'delete', description: '删除角色' },
-      { id: 205, name: '分配权限', code: 'role:permission', type: 'action', description: '为角色分配权限' }
-    ]
-  },
-  {
-    id: 3,
-    module: '课程管理',
-    moduleName: 'course',
-    icon: 'fas fa-book-open',
-    routes: [
-      { id: 301, name: '课程列表', code: 'course:list', type: 'view', description: '查看课程列表' },
-      { id: 302, name: '新增课程', code: 'course:create', type: 'create', description: '创建新课程' },
-      { id: 303, name: '编辑课程', code: 'course:update', type: 'update', description: '修改课程信息' },
-      { id: 304, name: '删除课程', code: 'course:delete', type: 'delete', description: '删除课程' },
-      { id: 305, name: '课程详情', code: 'course:detail', type: 'view', description: '查看课程详情' },
-      { id: 306, name: '发布课程', code: 'course:publish', type: 'action', description: '发布或下架课程' }
-    ]
-  },
-  {
-    id: 4,
-    module: '作业管理',
-    moduleName: 'homework',
-    icon: 'fas fa-tasks',
-    routes: [
-      { id: 401, name: '作业列表', code: 'homework:list', type: 'view', description: '查看作业列表' },
-      { id: 402, name: '布置作业', code: 'homework:create', type: 'create', description: '布置新作业' },
-      { id: 403, name: '编辑作业', code: 'homework:update', type: 'update', description: '修改作业信息' },
-      { id: 404, name: '删除作业', code: 'homework:delete', type: 'delete', description: '删除作业' },
-      { id: 405, name: '批改作业', code: 'homework:grade', type: 'action', description: '批改学生作业' }
-    ]
-  },
-  {
-    id: 5,
-    module: '资源管理',
-    moduleName: 'resource',
-    icon: 'fas fa-file-alt',
-    routes: [
-      { id: 501, name: '资源列表', code: 'resource:list', type: 'view', description: '查看教学资源' },
-      { id: 502, name: '上传资源', code: 'resource:upload', type: 'create', description: '上传教学资源' },
-      { id: 503, name: '编辑资源', code: 'resource:update', type: 'update', description: '修改资源信息' },
-      { id: 504, name: '删除资源', code: 'resource:delete', type: 'delete', description: '删除教学资源' },
-      { id: 505, name: '下载资源', code: 'resource:download', type: 'action', description: '下载教学资源' }
-    ]
+// 搜索角色
+const searchRoles = () => {
+  pagination.current = 1;
+  loadRoleList();
+};
+
+// 编辑角色
+const editRole = async (role) => {
+  try {
+    const roleDetail = await getRole(role.id);
+    Object.assign(roleForm, roleDetail);
+    showEditDialog.value = true;
+  } catch (error) {
+    ElMessage.error('获取角色详情失败：' + error.message);
   }
-]);
+};
+
+// 删除角色
+const deleteRole = async (role) => {
+  if (role.userCount > 0) {
+    ElMessage.warning('该角色下还有用户，无法删除！');
+    return;
+  }
+  
+  try {
+    await ElMessageBox.confirm(`确定要删除角色"${role.roleName}"吗？`, '提示', {
+      type: 'warning'
+    });
+    
+    await deleteRoleApi(role.id);
+    ElMessage.success('删除成功');
+    refreshRoles();
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('删除失败：' + error.message);
+    }
+  }
+};
+
+// 提交表单
+const submitForm = async () => {
+  try {
+    if (showAddDialog.value) {
+      await createRole(roleForm);
+      ElMessage.success('新增成功');
+    } else {
+      await updateRole(roleForm.id, roleForm);
+      ElMessage.success('更新成功');
+    }
+    cancelForm();
+    refreshRoles();
+  } catch (error) {
+    ElMessage.error((showAddDialog.value ? '新增' : '更新') + '失败：' + error.message);
+  }
+};
 
 // 方法
 const getPermissionTypeText = (type) => {
@@ -608,31 +526,6 @@ const getOperationTypeText = (type) => {
     'action': '操作' 
   };
   return types[type] || type;
-};
-
-const refreshRoles = () => {
-  roleList.value = [...mockRoleData.value];
-};
-
-const searchRoles = () => {
-  console.log('搜索角色', searchForm);
-};
-
-const editRole = (role) => {
-  Object.assign(roleForm, role);
-  showEditDialog.value = true;
-};
-
-const deleteRole = (role) => {
-  if (role.userCount > 0) {
-    alert('该角色下还有用户，无法删除！');
-    return;
-  }
-  
-  if (confirm(`确定要删除角色"${role.roleName}"吗？`)) {
-    console.log('删除角色', role);
-    // 这里应该调用删除API
-  }
 };
 
 const configMenuPermissions = (role) => {
@@ -734,17 +627,6 @@ const clearAllModuleRoutes = (module) => {
   });
 };
 
-const submitForm = () => {
-  if (showAddDialog.value) {
-    console.log('新增角色', roleForm);
-    // 调用新增API
-  } else {
-    console.log('更新角色', roleForm);
-    // 调用更新API
-  }
-  cancelForm();
-};
-
 const cancelForm = () => {
   showAddDialog.value = false;
   showEditDialog.value = false;
@@ -763,6 +645,6 @@ const resetForm = () => {
 };
 
 onMounted(() => {
-  refreshRoles();
+  loadRoleList();
 });
 </script> 
