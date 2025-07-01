@@ -3,6 +3,7 @@ package com.example.aiteaching.controller;
 import com.example.aiteaching.common.Result;
 import com.example.aiteaching.service.PermissionService;
 import com.example.aiteaching.common.util.UserContext;
+import com.example.aiteaching.entity.Permission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,5 +62,46 @@ public class PermissionController {
             return Result.fail("用户未登录");
         }
         return Result.success(permissionService.getUserMenuPermissions(userId));
+    }
+
+    /**
+     * 获取所有菜单列表
+     */
+    @GetMapping("/menus")
+    public Result<List<Permission>> getAllMenus() {
+        return Result.success(permissionService.getAllMenus());
+    }
+
+    /**
+     * 新增菜单
+     */
+    @PostMapping("/menu")
+    public Result<Permission> addMenu(@RequestBody Permission permission) {
+        return Result.success(permissionService.addMenu(permission));
+    }
+
+    /**
+     * 更新菜单
+     */
+    @PutMapping("/menu/{id}")
+    public Result<Permission> updateMenu(@PathVariable Long id, @RequestBody Permission permission) {
+        permission.setId(id);
+        return Result.success(permissionService.updateMenu(permission));
+    }
+
+    /**
+     * 删除菜单
+     */
+    @DeleteMapping("/menu/{id}")
+    public Result<Boolean> deleteMenu(@PathVariable Long id) {
+        return Result.success(permissionService.deleteMenu(id));
+    }
+
+    /**
+     * 获取菜单详情
+     */
+    @GetMapping("/menu/{id}")
+    public Result<Permission> getMenuDetail(@PathVariable Long id) {
+        return Result.success(permissionService.getMenuDetail(id));
     }
 } 

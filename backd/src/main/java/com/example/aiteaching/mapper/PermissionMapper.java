@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.aiteaching.entity.Permission;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -62,4 +63,10 @@ public interface PermissionMapper extends BaseMapper<Permission> {
      * 批量插入角色的路由权限
      */
     int insertRoleRoutePermissions(@Param("roleId") Long roleId, @Param("permissionIds") Long[] permissionIds);
+
+    /**
+     * 获取同级最大排序值
+     */
+    @Select("SELECT MAX(sort) FROM sys_permission WHERE parent_id = #{parentId} AND is_deleted = 0")
+    Integer selectMaxSortByParentId(Long parentId);
 } 

@@ -98,7 +98,7 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <template v-for="menu in menuList" :key="menu.id">
+            <template v-for="(menu, index) in menuList" :key="menu.id">
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
@@ -136,6 +136,20 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex space-x-2">
                     <button 
+                      @click="adjustSort(menu, 'up')"
+                      class="text-gray-600 hover:text-blue-600"
+                      :disabled="menu.parentId === 0 ? index === 0 : isFirstChild(menu)"
+                    >
+                      <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <button 
+                      @click="adjustSort(menu, 'down')"
+                      class="text-gray-600 hover:text-blue-600"
+                      :disabled="menu.parentId === 0 ? index === menuList.length - 1 : isLastChild(menu)"
+                    >
+                      <i class="fas fa-arrow-down"></i>
+                    </button>
+                    <button 
                       @click="editMenu(menu)"
                       class="text-blue-600 hover:text-blue-900"
                     >
@@ -148,7 +162,7 @@
                       添加子菜单
                     </button>
                     <button 
-                      @click="deleteMenu(menu)"
+                      @click="deleteMenuHandler(menu)"
                       class="text-red-600 hover:text-red-900"
                     >
                       删除
@@ -159,7 +173,7 @@
               
               <!-- 子菜单 -->
               <template v-if="menu.expanded && menu.children">
-                <tr v-for="child in menu.children" :key="child.id" class="bg-gray-50">
+                <tr v-for="(child, childIndex) in menu.children" :key="child.id" class="bg-gray-50">
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                       <span class="mr-8 ml-4"></span>
@@ -195,7 +209,7 @@
                         编辑
                       </button>
                       <button 
-                        @click="deleteMenu(child)"
+                        @click="deleteMenuHandler(child)"
                         class="text-red-600 hover:text-red-900"
                       >
                         删除
@@ -292,6 +306,8 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { getAllMenus, addMenu, updateMenu, deleteMenu } from '@/api/permission';
 
 // 状态管理
 const showAddDialog = ref(false);
@@ -320,96 +336,13 @@ const menuForm = reactive({
   status: 1
 });
 
-// 模拟菜单数据
-const mockMenuData = ref([
-  {
-    id: 1,
-    parentId: 0,
-    permissionName: '首页',
-    permissionCode: 'dashboard',
-    permissionType: 1,
-    routePath: '/dashboard',
-    component: 'Home',
-    icon: 'fas fa-home',
-    sort: 1,
-    status: 1,
-    expanded: false,
-    children: []
-  },
-  {
-    id: 2,
-    parentId: 0,
-    permissionName: '教学管理',
-    permissionCode: 'teaching',
-    permissionType: 1,
-    routePath: '/teaching',
-    component: null,
-    icon: 'fas fa-chalkboard-teacher',
-    sort: 2,
-    status: 1,
-    expanded: false,
-    children: [
-      {
-        id: 6,
-        parentId: 2,
-        permissionName: '我的课程',
-        permissionCode: 'teaching:course',
-        permissionType: 1,
-        routePath: '/teaching/course',
-        component: 'TeachingCourse',
-        icon: 'fas fa-book-open',
-        sort: 1,
-        status: 1
-      },
-      {
-        id: 7,
-        parentId: 2,
-        permissionName: '作业管理',
-        permissionCode: 'teaching:homework',
-        permissionType: 1,
-        routePath: '/teaching/homework',
-        component: 'TeachingHomework',
-        icon: 'fas fa-tasks',
-        sort: 2,
-        status: 1
-      }
-    ]
-  },
-  {
-    id: 5,
-    parentId: 0,
-    permissionName: '系统管理',
-    permissionCode: 'system',
-    permissionType: 1,
-    routePath: '/system',
-    component: null,
-    icon: 'fas fa-cogs',
-    sort: 5,
-    status: 1,
-    expanded: false,
-    children: [
-      {
-        id: 16,
-        parentId: 5,
-        permissionName: '用户管理',
-        permissionCode: 'system:user',
-        permissionType: 1,
-        routePath: '/system/user',
-        component: 'SystemUser',
-        icon: 'fas fa-users',
-        sort: 1,
-        status: 1
-      }
-    ]
-  }
-]);
-
-// 方法
+// 获取菜单类型文本
 const getTypeText = (type) => {
   const types = { 1: '菜单', 2: '按钮', 3: '接口' };
   return types[type] || '';
 };
 
+// 获取菜单类型样式
 const getTypeClass = (type) => {
   const classes = {
     1: 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800',
@@ -419,6 +352,7 @@ const getTypeClass = (type) => {
   return classes[type] || '';
 };
 
+// 展开/收起菜单
 const toggleExpand = (menuId) => {
   const menu = findMenuById(menuList.value, menuId);
   if (menu) {
@@ -426,6 +360,7 @@ const toggleExpand = (menuId) => {
   }
 };
 
+// 根据ID查找菜单
 const findMenuById = (menus, id) => {
   for (const menu of menus) {
     if (menu.id === id) return menu;
@@ -437,51 +372,107 @@ const findMenuById = (menus, id) => {
   return null;
 };
 
-const refreshMenus = () => {
-  menuList.value = [...mockMenuData.value];
-  parentMenuOptions.value = mockMenuData.value.filter(menu => menu.permissionType === 1);
+// 刷新菜单列表
+const refreshMenus = async () => {
+  try {
+    const res = await getAllMenus();
+    if (res.code === 200) {
+      // 添加expanded属性用于控制展开/收起
+      const addExpandedProp = (menus) => {
+        return menus.map(menu => ({
+          ...menu,
+          expanded: false,
+          children: menu.children ? addExpandedProp(menu.children) : []
+        }));
+      };
+      menuList.value = addExpandedProp(res.data);
+      // 更新父级菜单选项
+      parentMenuOptions.value = res.data.filter(menu => menu.permissionType === 1);
+    }
+  } catch (error) {
+    ElMessage.error(error.message);
+  }
 };
 
+// 搜索菜单
 const searchMenus = () => {
-  // 这里应该调用API进行搜索
-  console.log('搜索菜单', searchForm);
+  // 本地搜索实现
+  const searchInMenus = (menus) => {
+    return menus.filter(menu => {
+      const nameMatch = !searchForm.name || menu.permissionName.includes(searchForm.name);
+      const typeMatch = !searchForm.type || menu.permissionType.toString() === searchForm.type;
+      const statusMatch = !searchForm.status || menu.status.toString() === searchForm.status;
+      
+      let childrenMatch = [];
+      if (menu.children) {
+        childrenMatch = searchInMenus(menu.children);
+      }
+      
+      return (nameMatch && typeMatch && statusMatch) || childrenMatch.length > 0;
+    });
+  };
+  
+  const filteredMenus = searchInMenus([...menuList.value]);
+  menuList.value = filteredMenus;
 };
 
+// 编辑菜单
 const editMenu = (menu) => {
   Object.assign(menuForm, menu);
   showEditDialog.value = true;
 };
 
+// 添加子菜单
 const addSubMenu = (parentMenu) => {
   resetForm();
   menuForm.parentId = parentMenu.id;
   showAddDialog.value = true;
 };
 
-const deleteMenu = (menu) => {
-  if (confirm(`确定要删除菜单"${menu.permissionName}"吗？`)) {
-    console.log('删除菜单', menu);
-    // 这里应该调用删除API
+// 删除菜单
+const deleteMenuHandler = async (menu) => {
+  try {
+    await ElMessageBox.confirm(`确定要删除菜单"${menu.permissionName}"吗？`, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    
+    const res = await deleteMenu(menu.id);
+    if (res.code === 200) {
+      ElMessage.success('删除成功');
+      refreshMenus();
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error(error.message);
+    }
   }
 };
 
-const submitForm = () => {
-  if (showAddDialog.value) {
-    console.log('新增菜单', menuForm);
-    // 调用新增API
-  } else {
-    console.log('更新菜单', menuForm);
-    // 调用更新API
+// 提交表单
+const submitForm = async () => {
+  try {
+    const api = showAddDialog.value ? addMenu : updateMenu;
+    const res = await api(menuForm);
+    if (res.code === 200) {
+      ElMessage.success(showAddDialog.value ? '新增成功' : '更新成功');
+      refreshMenus();
+      cancelForm();
+    }
+  } catch (error) {
+    ElMessage.error(error.message);
   }
-  cancelForm();
 };
 
+// 取消表单
 const cancelForm = () => {
   showAddDialog.value = false;
   showEditDialog.value = false;
   resetForm();
 };
 
+// 重置表单
 const resetForm = () => {
   Object.assign(menuForm, {
     id: null,
@@ -495,6 +486,60 @@ const resetForm = () => {
     sort: 0,
     status: 1
   });
+};
+
+// 调整菜单排序
+const adjustSort = async (menu, direction) => {
+  const siblings = menu.parentId === 0 
+    ? menuList.value 
+    : findMenuById(menuList.value, menu.parentId)?.children || [];
+  
+  const currentIndex = siblings.findIndex(m => m.id === menu.id);
+  if (direction === 'up' && currentIndex > 0) {
+    const targetMenu = siblings[currentIndex - 1];
+    const tempSort = menu.sort;
+    menu.sort = targetMenu.sort;
+    targetMenu.sort = tempSort;
+    
+    try {
+      await Promise.all([
+        updateMenu({ ...menu }),
+        updateMenu({ ...targetMenu })
+      ]);
+      ElMessage.success('排序调整成功');
+      refreshMenus();
+    } catch (error) {
+      ElMessage.error(error.message);
+    }
+  } else if (direction === 'down' && currentIndex < siblings.length - 1) {
+    const targetMenu = siblings[currentIndex + 1];
+    const tempSort = menu.sort;
+    menu.sort = targetMenu.sort;
+    targetMenu.sort = tempSort;
+    
+    try {
+      await Promise.all([
+        updateMenu({ ...menu }),
+        updateMenu({ ...targetMenu })
+      ]);
+      ElMessage.success('排序调整成功');
+      refreshMenus();
+    } catch (error) {
+      ElMessage.error(error.message);
+    }
+  }
+};
+
+// 判断是否是第一个子菜单
+const isFirstChild = (menu) => {
+  const siblings = findMenuById(menuList.value, menu.parentId)?.children || [];
+  return siblings.length > 0 && siblings[0].id === menu.id;
+};
+
+// 判断是否是最后一个子菜单
+const isLastChild = (menu) => {
+  const siblings = findMenuById(menuList.value, menu.parentId)?.children || [];
+  return siblings.length > 0 && siblings[siblings.length - 1].id === menu.id;
 };
 
 onMounted(() => {

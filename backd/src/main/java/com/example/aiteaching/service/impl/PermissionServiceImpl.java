@@ -1,7 +1,10 @@
 package com.example.aiteaching.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.aiteaching.entity.Permission;
 import com.example.aiteaching.entity.RolePermission;
+import com.example.aiteaching.entity.UserRole;
 import com.example.aiteaching.mapper.PermissionMapper;
 import com.example.aiteaching.mapper.RolePermissionMapper;
 import com.example.aiteaching.mapper.UserRoleMapper;
@@ -16,10 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class PermissionServiceImpl implements PermissionService {
-
-    @Autowired
-    private PermissionMapper permissionMapper;
+public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements PermissionService {
 
     @Autowired
     private UserRoleMapper userRoleMapper;
@@ -29,58 +29,58 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public List<Permission> getAllPermissions() {
-        return permissionMapper.selectList(null);
+        return this.list(null);
     }
 
     @Override
     public List<Permission> getUserPermissions(Long userId) {
-        return permissionMapper.selectByUserId(userId);
+        return this.getBaseMapper().selectByUserId(userId);
     }
 
     @Override
     public List<Permission> getMenuPermissionTree() {
         // 获取所有菜单权限
-        List<Permission> allMenus = permissionMapper.selectMenuTree();
+        List<Permission> allMenus = this.getBaseMapper().selectMenuTree();
         
         // 将权限列表转换为树形结构
-        return buildPermissionTree(allMenus);
+        return buildTree(allMenus);
     }
 
     @Override
     public List<Permission> getRoutePermissionList() {
         // 获取所有路由权限
-        return permissionMapper.selectRouteList();
+        return this.getBaseMapper().selectRouteList();
     }
 
     @Override
     public List<Permission> getRoleMenuPermissions(Long roleId) {
         // 获取角色的菜单权限
-        List<Permission> menuPermissions = permissionMapper.selectRoleMenuPermissions(roleId);
+        List<Permission> menuPermissions = this.getBaseMapper().selectRoleMenuPermissions(roleId);
         
         // 将权限列表转换为树形结构
-        return buildPermissionTree(menuPermissions);
+        return buildTree(menuPermissions);
     }
 
     @Override
     public List<Permission> getRoleRoutePermissions(Long roleId) {
         // 获取角色的路由权限
-        return permissionMapper.selectRoleRoutePermissions(roleId);
+        return this.getBaseMapper().selectRoleRoutePermissions(roleId);
     }
 
     @Override
     public List<Permission> getRolePermissions(Long roleId) {
-        List<Long> permissionIds = rolePermissionMapper.selectPermissionIdsByRoleId(roleId);
+        List<Long> permissionIds = this.getBaseMapper().selectPermissionIdsByRoleId(roleId);
         if (permissionIds.isEmpty()) {
             return new ArrayList<>();
         }
-        return permissionMapper.selectBatchIds(permissionIds);
+        return this.getBaseMapper().selectBatchIds(permissionIds);
     }
 
     @Override
     @Transactional
     public void assignRolePermissions(Long roleId, Long[] permissionIds) {
         // 先删除原有的权限关联
-        rolePermissionMapper.deleteByRoleId(roleId);
+        this.getBaseMapper().deleteByRoleId(roleId);
         
         // 添加新的权限关联
         if (permissionIds != null && permissionIds.length > 0) {
@@ -91,7 +91,7 @@ public class PermissionServiceImpl implements PermissionService {
                 rolePermission.setPermissionId(permissionId);
                 rolePermissions.add(rolePermission);
             }
-            rolePermissionMapper.insertBatch(rolePermissions);
+            this.getBaseMapper().insertBatch(rolePermissions);
         }
     }
 
@@ -99,11 +99,11 @@ public class PermissionServiceImpl implements PermissionService {
     @Transactional
     public void saveRoleMenuPermissions(Long roleId, Long[] permissionIds) {
         // 删除角色原有的菜单权限
-        permissionMapper.deleteRoleMenuPermissions(roleId);
+        this.getBaseMapper().deleteRoleMenuPermissions(roleId);
         
         // 添加新的菜单权限
         if (permissionIds != null && permissionIds.length > 0) {
-            permissionMapper.insertRoleMenuPermissions(roleId, permissionIds);
+            this.getBaseMapper().insertRoleMenuPermissions(roleId, permissionIds);
         }
     }
 
@@ -111,64 +111,116 @@ public class PermissionServiceImpl implements PermissionService {
     @Transactional
     public void saveRoleRoutePermissions(Long roleId, Long[] permissionIds) {
         // 删除角色原有的路由权限
-        permissionMapper.deleteRoleRoutePermissions(roleId);
+        this.getBaseMapper().deleteRoleRoutePermissions(roleId);
         
         // 添加新的路由权限
         if (permissionIds != null && permissionIds.length > 0) {
-            permissionMapper.insertRoleRoutePermissions(roleId, permissionIds);
+            this.getBaseMapper().insertRoleRoutePermissions(roleId, permissionIds);
         }
     }
 
     @Override
     public List<Permission> getUserMenuPermissions(Long userId) {
         // 1. 获取用户的所有角色ID
-        List<Long> roleIds = userRoleMapper.selectRoleIdsByUserId(userId);
+        List<Long> roleIds = this.getBaseMapper().selectRoleIdsByUserId(userId);
         if (roleIds.isEmpty()) {
             return new ArrayList<>();
         }
         
         // 2. 获取这些角色的所有权限ID
-        List<Long> permissionIds = rolePermissionMapper.selectPermissionIdsByRoleIds(roleIds);
+        List<Long> permissionIds = this.getBaseMapper().selectPermissionIdsByRoleIds(roleIds);
         if (permissionIds.isEmpty()) {
             return new ArrayList<>();
         }
         
         // 3. 获取所有菜单类型的权限
-        List<Permission> permissions = permissionMapper.selectBatchIds(permissionIds);
+        List<Permission> permissions = this.getBaseMapper().selectBatchIds(permissionIds);
         return permissions.stream()
                 .filter(p -> p.getPermissionType() == 1) // 只返回菜单类型的权限
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 构建权限树
-     * @param permissions 权限列表
-     * @return 树形结构的权限列表
-     */
-    private List<Permission> buildPermissionTree(List<Permission> permissions) {
-        // 按父ID分组
-        Map<Long, List<Permission>> parentIdMap = permissions.stream()
-                .collect(Collectors.groupingBy(Permission::getParentId));
+    @Override
+    public List<Permission> getAllMenus() {
+        // 获取所有未删除的权限
+        List<Permission> allPermissions = this.list(
+            new LambdaQueryWrapper<Permission>()
+                .eq(Permission::getIsDeleted, 0)
+                .orderByAsc(Permission::getSort)
+        );
+
+        // 构建树形结构
+        return buildTree(allPermissions);
+    }
+
+    @Override
+    @Transactional
+    public Permission addMenu(Permission permission) {
+        // 设置默认值
+        permission.setIsDeleted(0);
         
-        // 获取根节点（parentId = 0）
-        List<Permission> rootPermissions = parentIdMap.getOrDefault(0L, new ArrayList<>());
+        // 如果没有设置排序值，设置为同级最大排序值+1
+        if (permission.getSort() == null) {
+            Integer maxSort = this.getBaseMapper().selectMaxSortByParentId(permission.getParentId());
+            permission.setSort(maxSort != null ? maxSort + 1 : 1);
+        }
+
+        // 保存权限
+        this.save(permission);
+        return permission;
+    }
+
+    @Override
+    @Transactional
+    public Permission updateMenu(Permission permission) {
+        // 更新权限
+        this.updateById(permission);
+        return permission;
+    }
+
+    @Override
+    @Transactional
+    public Boolean deleteMenu(Long id) {
+        // 检查是否有子菜单
+        Long count = this.count(
+            new LambdaQueryWrapper<Permission>()
+                .eq(Permission::getParentId, id)
+                .eq(Permission::getIsDeleted, 0)
+        );
         
-        // 递归设置子节点
-        rootPermissions.forEach(root -> setChildren(root, parentIdMap));
-        
-        return rootPermissions;
+        if (count > 0) {
+            throw new RuntimeException("该菜单下有子菜单，不能删除");
+        }
+
+        // 逻辑删除
+        Permission permission = new Permission();
+        permission.setId(id);
+        permission.setIsDeleted(1);
+        return this.updateById(permission);
+    }
+
+    @Override
+    public Permission getMenuDetail(Long id) {
+        return this.getById(id);
     }
 
     /**
-     * 递归设置子节点
-     * @param parent 父节点
-     * @param parentIdMap 按父ID分组的权限Map
+     * 构建树形结构
      */
-    private void setChildren(Permission parent, Map<Long, List<Permission>> parentIdMap) {
-        List<Permission> children = parentIdMap.getOrDefault(parent.getId(), new ArrayList<>());
-        if (!children.isEmpty()) {
-            parent.setChildren(children);
-            children.forEach(child -> setChildren(child, parentIdMap));
-        }
+    private List<Permission> buildTree(List<Permission> permissions) {
+        // 按parentId分组
+        Map<Long, List<Permission>> parentIdMap = permissions.stream()
+            .collect(Collectors.groupingBy(Permission::getParentId));
+        
+        // 设置子菜单
+        permissions.forEach(permission -> {
+            List<Permission> children = parentIdMap.get(permission.getId());
+            if (children != null) {
+                permission.setChildren(children);
+            }
+        });
+        
+        // 返回顶级菜单
+        return parentIdMap.getOrDefault(0L, new ArrayList<>());
     }
 } 

@@ -78,6 +78,58 @@ export function getUserPermissions() {
     });
 }
 
+/**
+ * 获取所有菜单列表
+ */
+export function getAllMenus() {
+    return request({
+        url: '/permissions/menus',
+        method: 'get'
+    });
+}
+
+/**
+ * 新增菜单
+ */
+export function addMenu(data) {
+    return request({
+        url: '/permissions/menu',
+        method: 'post',
+        data
+    });
+}
+
+/**
+ * 更新菜单
+ */
+export function updateMenu(data) {
+    return request({
+        url: `/permissions/menu/${data.id}`,
+        method: 'put',
+        data
+    });
+}
+
+/**
+ * 删除菜单
+ */
+export function deleteMenu(id) {
+    return request({
+        url: `/permissions/menu/${id}`,
+        method: 'delete'
+    });
+}
+
+/**
+ * 获取菜单详情
+ */
+export function getMenuDetail(id) {
+    return request({
+        url: `/permissions/menu/${id}`,
+        method: 'get'
+    });
+}
+
 // 获取用户的菜单权限
 export function getUserMenuPermissions() {
     return request({

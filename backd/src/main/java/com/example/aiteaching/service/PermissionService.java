@@ -37,4 +37,29 @@ public interface PermissionService {
     void saveRoleRoutePermissions(Long roleId, Long[] permissionIds);
 
     List<Permission> getUserMenuPermissions(Long userId);
+
+    /**
+     * 获取所有菜单列表
+     */
+    List<Permission> getAllMenus();
+
+    /**
+     * 新增菜单
+     */
+    Permission addMenu(Permission permission);
+
+    /**
+     * 更新菜单
+     */
+    Permission updateMenu(Permission permission);
+
+    /**
+     * 删除菜单
+     */
+    Boolean deleteMenu(Long id);
+
+    /**
+     * 获取菜单详情
+     */
+    Permission getMenuDetail(Long id);
 } 

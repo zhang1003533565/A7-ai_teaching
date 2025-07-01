@@ -24,13 +24,6 @@
 
       <!-- 菜单分组渲染 -->
       <div v-for="group in menuGroups" :key="group.key" class="mt-2">
-        <div
-          v-show="!collapsed"
-          class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-        >
-          {{ group.title }}
-        </div>
-        
         <div v-for="item in group.items" :key="item.key" class="px-4 py-1">
           <!-- 有子菜单的项目 -->
           <div v-if="item.children && item.children.length > 0">
@@ -207,38 +200,34 @@ const transformMenuData = (permissions) => {
   });
 
   // 构建菜单树
-  const menuGroups = [];
+  const menuItems = [];
   menuMap.forEach(menu => {
     if (menu.parentId === 0) {
       // 这是一个顶级菜单
-      menuGroups.push({
-        key: menu.key,
-        title: menu.name,
-        items: [{
-          ...menu,
-          children: sortedPermissions
-            .filter(p => p.parentId === menu.id && p.permissionType === 1)
-            .map(child => ({
-              key: child.permissionCode,
-              name: child.permissionName,
-              icon: `fas fa-${child.icon || 'circle'}`,
-              path: child.routePath,
-              sort: child.sort
-            }))
-            .sort((a, b) => a.sort - b.sort)
-        }]
+      menuItems.push({
+        ...menu,
+        children: sortedPermissions
+          .filter(p => p.parentId === menu.id && p.permissionType === 1)
+          .map(child => ({
+            key: child.permissionCode,
+            name: child.permissionName,
+            icon: `fas fa-${child.icon || 'circle'}`,
+            path: child.routePath,
+            sort: child.sort
+          }))
+          .sort((a, b) => a.sort - b.sort)
       });
     }
   });
 
-  // 根据父菜单的sort字段排序
-  menuGroups.sort((a, b) => {
-    const aItem = a.items[0];
-    const bItem = b.items[0];
-    return aItem.sort - bItem.sort;
-  });
+  // 根据sort字段排序
+  menuItems.sort((a, b) => a.sort - b.sort);
 
-  return menuGroups;
+  // 返回单个分组
+  return [{
+    key: 'main',
+    items: menuItems
+  }];
 }
 
 // 加载用户菜单权限
