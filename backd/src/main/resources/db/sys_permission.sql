@@ -128,3 +128,44 @@ INSERT INTO `sys_permission` (`parent_id`, `permission_name`, `permission_code`,
 (67, '备份设置', 'system:backup', 1, '/dashboard/system-settings/backup', 'system-settings/BackupSettings', 'backup', 4),
 (67, '日志设置', 'system:logs', 1, '/dashboard/system-settings/logs', 'system-settings/LogsSettings', 'log', 5),
 (67, '系统信息', 'system:info', 1, '/dashboard/system-settings/info', 'system-settings/SystemInfo', 'info', 6);
+
+
+-- API接口权限统一管理
+SET @api_root_id = 0;
+INSERT INTO `sys_permission` (`parent_id`, `permission_name`, `permission_code`, `permission_type`, `route_path`, `component`, `icon`, `sort`) VALUES
+(0, 'API接口权限', 'api', 3, NULL, NULL, 'api', 99);
+SET @api_root_id = LAST_INSERT_ID();
+
+-- 用户管理相关接口权限
+INSERT INTO `sys_permission` (`parent_id`, `permission_name`, `permission_code`, `permission_type`, `route_path`, `component`, `icon`, `sort`) VALUES
+(@api_root_id, '用户管理接口', 'api:user', 3, NULL, NULL, NULL, 1);
+SET @user_api_id = LAST_INSERT_ID();
+
+INSERT INTO `sys_permission` (`parent_id`, `permission_name`, `permission_code`, `permission_type`, `route_path`, `component`, `icon`, `sort`) VALUES
+(@user_api_id, '查询用户列表', 'api:user:list', 3, NULL, NULL, NULL, 1),
+(@user_api_id, '创建用户', 'api:user:create', 3, NULL, NULL, NULL, 2),
+(@user_api_id, '更新用户', 'api:user:update', 3, NULL, NULL, NULL, 3),
+(@user_api_id, '删除用户', 'api:user:delete', 3, NULL, NULL, NULL, 4);
+
+-- 角色管理相关接口权限
+INSERT INTO `sys_permission` (`parent_id`, `permission_name`, `permission_code`, `permission_type`, `route_path`, `component`, `icon`, `sort`) VALUES
+(@api_root_id, '角色管理接口', 'api:role', 3, NULL, NULL, NULL, 2);
+SET @role_api_id = LAST_INSERT_ID();
+
+INSERT INTO `sys_permission` (`parent_id`, `permission_name`, `permission_code`, `permission_type`, `route_path`, `component`, `icon`, `sort`) VALUES
+(@role_api_id, '查询角色列表', 'api:role:list', 3, NULL, NULL, NULL, 1),
+(@role_api_id, '创建角色', 'api:role:create', 3, NULL, NULL, NULL, 2),
+(@role_api_id, '更新角色', 'api:role:update', 3, NULL, NULL, NULL, 3),
+(@role_api_id, '删除角色', 'api:role:delete', 3, NULL, NULL, NULL, 4),
+(@role_api_id, '分配角色权限', 'api:role:assign', 3, NULL, NULL, NULL, 5);
+
+-- 权限管理相关接口权限
+INSERT INTO `sys_permission` (`parent_id`, `permission_name`, `permission_code`, `permission_type`, `route_path`, `component`, `icon`, `sort`) VALUES
+(@api_root_id, '权限管理接口', 'api:permission', 3, NULL, NULL, NULL, 3);
+SET @permission_api_id = LAST_INSERT_ID();
+
+INSERT INTO `sys_permission` (`parent_id`, `permission_name`, `permission_code`, `permission_type`, `route_path`, `component`, `icon`, `sort`) VALUES
+(@permission_api_id, '查询权限列表', 'api:permission:list', 3, NULL, NULL, NULL, 1),
+(@permission_api_id, '创建权限', 'api:permission:create', 3, NULL, NULL, NULL, 2),
+(@permission_api_id, '更新权限', 'api:permission:update', 3, NULL, NULL, NULL, 3),
+(@permission_api_id, '删除权限', 'api:permission:delete', 3, NULL, NULL, NULL, 4);
