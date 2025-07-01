@@ -11,6 +11,30 @@ import PersonalSecuritySettings from '../views/personal/PersonalSecuritySettings
 import PersonalNotificationSettings from '../views/personal/PersonalNotificationSettings.vue'
 import PersonalPreferenceSettings from '../views/personal/PersonalPreferenceSettings.vue'
 import PersonalAccountSettings from '../views/personal/PersonalAccountSettings.vue'
+import BasicSettings from '../views/system-settings/BasicSettings.vue'
+import EmailSettings from '../views/system-settings/EmailSettings.vue'
+import SystemSecuritySettings from '../views/system-settings/SystemSecuritySettings.vue'
+import BackupSettings from '../views/system-settings/BackupSettings.vue'
+import LogsSettings from '../views/system-settings/LogsSettings.vue'
+import SystemInfo from '../views/system-settings/SystemInfo.vue'
+import CoursesOverview from '../views/courses/CoursesOverview.vue'
+import CoursesManage from '../views/courses/CoursesManage.vue'
+import CoursesContent from '../views/courses/CoursesContent.vue'
+import CoursesSchedule from '../views/courses/CoursesSchedule.vue'
+import CoursesStudents from '../views/courses/CoursesStudents.vue'
+import CoursesResources from '../views/courses/CoursesResources.vue'
+import HomeworkOverview from '../views/homework/HomeworkOverview.vue'
+import HomeworkPublish from '../views/homework/HomeworkPublish.vue'
+import HomeworkGrading from '../views/homework/HomeworkGrading.vue'
+import HomeworkGrades from '../views/homework/HomeworkGrades.vue'
+import HomeworkSubmissions from '../views/homework/HomeworkSubmissions.vue'
+import HomeworkTemplates from '../views/homework/HomeworkTemplates.vue'
+import AnalysisOverview from '../views/analysis/AnalysisOverview.vue'
+import LearningProgress from '../views/analysis/LearningProgress.vue'
+import PerformanceAnalysis from '../views/analysis/PerformanceAnalysis.vue'
+import EngagementAnalysis from '../views/analysis/EngagementAnalysis.vue'
+import KnowledgeMap from '../views/analysis/KnowledgeMap.vue'
+import LearningReport from '../views/analysis/LearningReport.vue'
 
 const routes = [
   {
@@ -70,32 +94,32 @@ const routes = [
       {
         path: 'courses/overview',
         name: 'CoursesOverview',
-        component: () => import('../views/courses/CoursesOverview.vue')
+        component: CoursesOverview
       },
       {
         path: 'courses/manage',
         name: 'CoursesManage',
-        component: () => import('../views/courses/CoursesManage.vue')
+        component: CoursesManage
       },
       {
         path: 'courses/content',
         name: 'CoursesContent',
-        component: () => import('../views/courses/CoursesContent.vue')
+        component: CoursesContent
       },
       {
         path: 'courses/schedule',
         name: 'CoursesSchedule',
-        component: () => import('../views/courses/CoursesSchedule.vue')
+        component: CoursesSchedule
       },
       {
         path: 'courses/students',
         name: 'CoursesStudents',
-        component: () => import('../views/courses/CoursesStudents.vue')
+        component: CoursesStudents
       },
       {
         path: 'courses/resources',
         name: 'CoursesResources',
-        component: () => import('../views/courses/CoursesResources.vue')
+        component: CoursesResources
       },
       
       // 作业管理子路由
@@ -106,32 +130,32 @@ const routes = [
       {
         path: 'homework/overview',
         name: 'HomeworkOverview',
-        component: () => import('../views/homework/HomeworkOverview.vue')
+        component: HomeworkOverview
       },
       {
         path: 'homework/publish',
         name: 'HomeworkPublish',
-        component: () => import('../views/homework/HomeworkPublish.vue')
+        component: HomeworkPublish
       },
       {
         path: 'homework/grading',
         name: 'HomeworkGrading',
-        component: () => import('../views/homework/HomeworkGrading.vue')
+        component: HomeworkGrading
       },
       {
         path: 'homework/grades',
         name: 'HomeworkGrades',
-        component: () => import('../views/homework/HomeworkGrades.vue')
+        component: HomeworkGrades
       },
       {
         path: 'homework/submissions',
         name: 'HomeworkSubmissions',
-        component: () => import('../views/homework/HomeworkSubmissions.vue')
+        component: HomeworkSubmissions
       },
       {
         path: 'homework/templates',
         name: 'HomeworkTemplates',
-        component: () => import('../views/homework/HomeworkTemplates.vue')
+        component: HomeworkTemplates
       },
       
       // 个人设置子路由
@@ -173,32 +197,68 @@ const routes = [
       {
         path: 'system-settings/basic',
         name: 'BasicSettings',
-        component: () => import('../views/system-settings/BasicSettings.vue')
+        component: BasicSettings
       },
       {
         path: 'system-settings/email',
         name: 'EmailSettings',
-        component: () => import('../views/system-settings/EmailSettings.vue')
+        component: EmailSettings
       },
       {
         path: 'system-settings/security',
         name: 'SystemSecuritySettings',
-        component: () => import('../views/system-settings/SystemSecuritySettings.vue')
+        component: SystemSecuritySettings
       },
       {
         path: 'system-settings/backup',
         name: 'BackupSettings',
-        component: () => import('../views/system-settings/BackupSettings.vue')
+        component: BackupSettings
       },
       {
         path: 'system-settings/logs',
         name: 'LogsSettings',
-        component: () => import('../views/system-settings/LogsSettings.vue')
+        component: LogsSettings
       },
       {
         path: 'system-settings/info',
         name: 'SystemInfo',
-        component: () => import('../views/system-settings/SystemInfo.vue')
+        component: SystemInfo
+      },
+
+      // 学情分析子路由
+      {
+        path: 'analysis',
+        redirect: 'analysis/overview'
+      },
+      {
+        path: 'analysis/overview',
+        name: 'AnalysisOverview',
+        component: AnalysisOverview
+      },
+      {
+        path: 'analysis/progress',
+        name: 'LearningProgress',
+        component: LearningProgress
+      },
+      {
+        path: 'analysis/performance',
+        name: 'PerformanceAnalysis',
+        component: PerformanceAnalysis
+      },
+      {
+        path: 'analysis/engagement',
+        name: 'EngagementAnalysis',
+        component: EngagementAnalysis
+      },
+      {
+        path: 'analysis/knowledge',
+        name: 'KnowledgeMap',
+        component: KnowledgeMap
+      },
+      {
+        path: 'analysis/report',
+        name: 'LearningReport',
+        component: LearningReport
       }
     ]
   },

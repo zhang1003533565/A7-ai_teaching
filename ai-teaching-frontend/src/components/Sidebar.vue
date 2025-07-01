@@ -215,7 +215,45 @@ const menuGroups = reactive([
         key: 'analysis',
         name: '学情分析',
         icon: 'fas fa-chart-bar',
-        path: '/analysis'
+        expanded: false,
+        children: [
+          {
+            key: 'analysis-overview',
+            name: '分析概览',
+            icon: 'fas fa-tachometer-alt',
+            path: '/dashboard/analysis/overview'
+          },
+          {
+            key: 'learning-progress',
+            name: '学习进度',
+            icon: 'fas fa-tasks',
+            path: '/dashboard/analysis/progress'
+          },
+          {
+            key: 'performance-analysis',
+            name: '成绩分析',
+            icon: 'fas fa-chart-line',
+            path: '/dashboard/analysis/performance'
+          },
+          {
+            key: 'engagement-analysis',
+            name: '参与度分析',
+            icon: 'fas fa-user-clock',
+            path: '/dashboard/analysis/engagement'
+          },
+          {
+            key: 'knowledge-map',
+            name: '知识图谱',
+            icon: 'fas fa-project-diagram',
+            path: '/dashboard/analysis/knowledge'
+          },
+          {
+            key: 'learning-report',
+            name: '学习报告',
+            icon: 'fas fa-file-alt',
+            path: '/dashboard/analysis/report'
+          }
+        ]
       }
     ]
   },
