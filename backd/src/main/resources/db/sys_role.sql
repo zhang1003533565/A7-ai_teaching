@@ -11,3 +11,7 @@ CREATE TABLE `sys_role` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_role_code` (`role_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色表'
+
+-- 插入管理员角色
+INSERT INTO `sys_role` (`role_name`, `role_code`, `description`, `status`, `sort`)
+VALUES ('管理员', 'admin', '系统管理员，拥有所有权限', 1, 0);

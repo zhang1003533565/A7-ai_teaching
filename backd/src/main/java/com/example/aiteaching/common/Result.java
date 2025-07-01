@@ -40,4 +40,11 @@ public class Result<T> {
         result.message = message;
         return result;
     }
+
+    public static <T> Result<T> fail(String message) {
+        Result<T> result = new Result<>();
+        result.code = 500;
+        result.message = message;
+        return result;
+    }
 } 

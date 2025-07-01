@@ -79,6 +79,11 @@ const routes = [
     component: Login
   },
   {
+    path: '/403',
+    name: 'Forbidden',
+    component: () => import('../views/403.vue')
+  },
+  {
     path: '/dashboard',
     component: Home,
     meta: { requiresAuth: true },
@@ -463,15 +468,15 @@ const router = createRouter({
 
 // 路由守卫：检查是否需要登录和权限
 router.beforeEach(async (to, from, next) => {
-  // 如果是登录页面，直接通过
-  if (to.path === '/login') {
+  // 如果是登录页面或403页面，直接通过
+  if (to.path === '/login' || to.path === '/403') {
     next();
     return;
   }
 
   const token = localStorage.getItem('token');
   const userRole = localStorage.getItem('userRole');
-  const permissions = JSON.parse(localStorage.getItem('permissions') || '[]');
+  const permissionPaths = JSON.parse(localStorage.getItem('permissionPaths') || '[]');
   
   if (to.meta.requiresAuth && !token) {
     // 需要登录但没有token，跳转到登录页
@@ -481,28 +486,23 @@ router.beforeEach(async (to, from, next) => {
     if (userRole === 'admin') {
       // 管理员拥有所有权限
       next();
-    } else if (permissions.length === 0) {
-      try {
-        // 获取用户权限
-        const response = await getUserPermissions();
-        if (response.code === 200) {
-          localStorage.setItem('permissions', JSON.stringify(response.data));
-          // 检查是否有访问该路由的权限
-          if (response.data.some(p => p.route_path === to.path)) {
-            next();
-          } else {
-            next('/403');
-          }
-        } else {
-          next('/login');
-        }
-      } catch (error) {
-        console.error('获取权限失败:', error);
-        next('/login');
-      }
     } else {
-      // 使用缓存的权限数据验证
-      if (permissions.some(p => p.route_path === to.path)) {
+      // 检查是否有访问该路由的权限
+      const hasPermission = permissionPaths.some(path => {
+        // 完全匹配
+        if (path === to.path) return true;
+        
+        // 检查父级路径
+        const pathParts = to.path.split('/').filter(Boolean);
+        let currentPath = '';
+        for (const part of pathParts) {
+          currentPath += '/' + part;
+          if (path === currentPath) return true;
+        }
+        return false;
+      });
+
+      if (hasPermission) {
         next();
       } else {
         next('/403');
@@ -513,5 +513,27 @@ router.beforeEach(async (to, from, next) => {
     next();
   }
 });
+
+// 检查是否有权限访问路由
+function hasPermission(permissions, path) {
+  // 检查完整路径匹配
+  const hasDirectPermission = permissions.some(p => p.routePath === path);
+  if (hasDirectPermission) {
+    return true;
+  }
+
+  // 检查父级路径权限
+  const pathParts = path.split('/').filter(Boolean);
+  let currentPath = '';
+  for (const part of pathParts) {
+    currentPath += '/' + part;
+    const hasParentPermission = permissions.some(p => p.routePath === currentPath);
+    if (hasParentPermission) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 export default router 

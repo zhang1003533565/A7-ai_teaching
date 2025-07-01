@@ -143,11 +143,17 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     public boolean assignPermissions(Long roleId, List<Long> permissionIds) {
         // 先删除原有的权限关联
         rolePermissionMapper.deleteByRoleId(roleId);
-        
+
         // 如果有新的权限，则添加
         if (permissionIds != null && !permissionIds.isEmpty()) {
-            Long[] permissionIdArray = permissionIds.toArray(new Long[0]);
-            rolePermissionMapper.insertBatch(roleId, permissionIdArray);
+            List<RolePermission> rolePermissions = new ArrayList<>();
+            for (Long permissionId : permissionIds) {
+                RolePermission rolePermission = new RolePermission();
+                rolePermission.setRoleId(roleId);
+                rolePermission.setPermissionId(permissionId);
+                rolePermissions.add(rolePermission);
+            }
+            rolePermissionMapper.insertBatch(rolePermissions);
         }
         return true;
     }

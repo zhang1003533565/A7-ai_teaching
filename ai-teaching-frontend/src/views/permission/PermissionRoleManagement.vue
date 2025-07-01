@@ -118,6 +118,24 @@
           </div>
         </div>
         
+        <!-- 添加菜单权限显示 -->
+        <div class="mb-4">
+          <div class="text-sm text-gray-500 mb-2">已分配菜单权限：</div>
+          <div class="flex flex-wrap gap-1">
+            <template v-if="role.menuPermissions && role.menuPermissions.length > 0">
+              <span 
+                v-for="permission in role.menuPermissions" 
+                :key="permission.id"
+                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700"
+              >
+                <i :class="permission.icon" class="mr-1 text-blue-500"></i>
+                {{ permission.permissionName }}
+              </span>
+            </template>
+            <span v-else class="text-sm text-gray-400">暂无菜单权限</span>
+          </div>
+        </div>
+        
         <div class="space-y-2">
           <div class="flex space-x-2">
             <button 
@@ -440,7 +458,18 @@ const loadRoleList = async () => {
     const res = await getRolePage(params);
     console.log('获取到的角色列表：', res);
     if (res && res.data) {
-      roleList.value = res.data.records || [];
+      // 获取每个角色的菜单权限
+      const roles = res.data.records || [];
+      for (const role of roles) {
+        try {
+          const menuRes = await getRoleMenuPermissions(role.id);
+          role.menuPermissions = menuRes.data || [];
+        } catch (error) {
+          console.error(`获取角色 ${role.id} 的菜单权限失败:`, error);
+          role.menuPermissions = [];
+        }
+      }
+      roleList.value = roles;
       pagination.total = res.data.total || 0;
       pagination.current = res.data.current;
       pagination.size = res.data.size;

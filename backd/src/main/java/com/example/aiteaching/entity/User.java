@@ -2,16 +2,12 @@ package com.example.aiteaching.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.experimental.Accessors;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Builder
-@NoArgsConstructor(force = true)
-@AllArgsConstructor
+@Accessors(chain = true)
 @TableName("sys_user")
 public class User {
     @TableId(type = IdType.AUTO)
@@ -35,15 +31,16 @@ public class User {
     private Integer status;
     
     @TableLogic(value = "0", delval = "1")
+    @TableField("is_deleted")
     private Integer isDeleted;
     
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
     
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
     
-    @TableField(fill = FieldFill.UPDATE)
+    @TableField(value = "delete_time", fill = FieldFill.UPDATE)
     private LocalDateTime deleteTime;
     
     /**

@@ -230,7 +230,7 @@ const handleLogin = async () => {
     });
 
     // 保存token和用户信息
-    localStorage.setItem('token', `Bearer ${response.data.token}`);
+    localStorage.setItem('token', response.data.token);
     localStorage.setItem('userInfo', JSON.stringify({
       id: response.data.id,
       username: response.data.username,
@@ -242,9 +242,29 @@ const handleLogin = async () => {
 
     // 保存权限信息
     if (response.data.permissions) {
+      // 构建权限映射，包括父级路由
+      const permissionMap = new Map();
+      response.data.permissions.forEach(permission => {
+        if (permission.routePath) {
+          // 存储完整路径权限
+          permissionMap.set(permission.routePath, true);
+          
+          // 存储父级路径权限
+          const pathParts = permission.routePath.split('/').filter(Boolean);
+          let currentPath = '';
+          pathParts.forEach(part => {
+            currentPath += '/' + part;
+            permissionMap.set(currentPath, true);
+          });
+        }
+      });
+      
+      // 将权限数据转换为数组并存储
       localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
+      localStorage.setItem('permissionPaths', JSON.stringify(Array.from(permissionMap.keys())));
     } else {
       localStorage.setItem('permissions', JSON.stringify([]));
+      localStorage.setItem('permissionPaths', JSON.stringify([]));
     }
 
     // 如果记住密码，保存账号密码

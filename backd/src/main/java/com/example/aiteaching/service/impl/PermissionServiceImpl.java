@@ -119,6 +119,27 @@ public class PermissionServiceImpl implements PermissionService {
         }
     }
 
+    @Override
+    public List<Permission> getUserMenuPermissions(Long userId) {
+        // 1. 获取用户的所有角色ID
+        List<Long> roleIds = userRoleMapper.selectRoleIdsByUserId(userId);
+        if (roleIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        // 2. 获取这些角色的所有权限ID
+        List<Long> permissionIds = rolePermissionMapper.selectPermissionIdsByRoleIds(roleIds);
+        if (permissionIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        // 3. 获取所有菜单类型的权限
+        List<Permission> permissions = permissionMapper.selectBatchIds(permissionIds);
+        return permissions.stream()
+                .filter(p -> p.getPermissionType() == 1) // 只返回菜单类型的权限
+                .collect(Collectors.toList());
+    }
+
     /**
      * 构建权限树
      * @param permissions 权限列表

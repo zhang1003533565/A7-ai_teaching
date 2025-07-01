@@ -2,16 +2,12 @@ package com.example.aiteaching.dto;
 
 import com.example.aiteaching.entity.Permission;
 import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Accessors(chain = true)
 public class LoginResponse {
     private Long id;
     private String username;

@@ -24,20 +24,26 @@ public class UserController {
 
     @PostMapping("/login")
     public Result<LoginResponse> login(@RequestBody LoginRequest request) {
-        LoginResponse response = userService.login(request);
-        if (response != null) {
-            // 如果是管理员，返回所有权限
-            if ("admin".equals(response.getRole())) {
-                List<Permission> allPermissions = permissionService.getAllPermissions();
-                response.setPermissions(allPermissions);
-            } else {
-                // 获取用户的权限
-                List<Permission> permissions = permissionService.getUserPermissions(response.getId());
-                response.setPermissions(permissions);
+        try {
+            LoginResponse response = userService.login(request);
+            if (response != null) {
+                // 如果是管理员，返回所有权限
+                if ("admin".equals(response.getRole())) {
+                    List<Permission> allPermissions = permissionService.getAllPermissions();
+                    response.setPermissions(allPermissions);
+                } else {
+                    // 获取用户的权限
+                    List<Permission> permissions = permissionService.getUserPermissions(response.getId());
+                    response.setPermissions(permissions);
+                }
+                return Result.success(response);
             }
-            return Result.success(response);
+            return Result.error("用户名或密码错误");
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        } catch (Exception e) {
+            return Result.error("登录失败：" + e.getMessage());
         }
-        return Result.error("用户名或密码错误");
     }
 
     @PostMapping("/add")

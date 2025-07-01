@@ -8,3 +8,7 @@ CREATE TABLE `sys_user_role` (
   KEY `idx_user_id` (`user_id`),
   KEY `idx_role_id` (`role_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户角色关联表'
+
+-- 为管理员用户关联管理员角色
+INSERT INTO `sys_user_role` (`user_id`, `role_id`)
+VALUES (1, 1);

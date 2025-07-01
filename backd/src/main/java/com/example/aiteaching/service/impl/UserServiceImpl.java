@@ -42,7 +42,8 @@ public class UserServiceImpl implements UserService {
     public LoginResponse login(LoginRequest request) {
         // 1. 根据用户名查询用户
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUsername, request.getUsername());
+        queryWrapper.eq(User::getUsername, request.getUsername())
+                   .eq(User::getIsDeleted, 0);  // 添加未删除条件
         User user = userMapper.selectOne(queryWrapper);
 
         if (user == null) {
@@ -59,24 +60,26 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("账号已被禁用");
         }
 
-        // 4. 生成token
+        // 4. 使用用户表中的role字段
+        String role = user.getRole().toLowerCase();
+
+        // 5. 生成token
         String token = Jwts.builder()
                 .setSubject(user.getId().toString())
-                .claim("role", user.getRole())
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 24小时过期
                 .signWith(SignatureAlgorithm.HS256, "your-secret-key")
                 .compact();
 
-        // 5. 返回登录响应
-        return LoginResponse.builder()
-                .id(user.getId())
-                .token(token)
-                .username(user.getUsername())
-                .realName(user.getRealName())
-                .role(user.getRole())
-                .avatar(user.getAvatar())
-                .build();
+        // 6. 返回登录响应
+        return new LoginResponse()
+                .setId(user.getId())
+                .setToken(token)
+                .setUsername(user.getUsername())
+                .setRealName(user.getRealName())
+                .setRole(role)
+                .setAvatar(user.getAvatar());
     }
 
     @Override

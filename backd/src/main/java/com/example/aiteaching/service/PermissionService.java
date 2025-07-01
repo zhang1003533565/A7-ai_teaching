@@ -35,4 +35,6 @@ public interface PermissionService {
     void saveRoleMenuPermissions(Long roleId, Long[] permissionIds);
     
     void saveRoleRoutePermissions(Long roleId, Long[] permissionIds);
+
+    List<Permission> getUserMenuPermissions(Long userId);
 } 
