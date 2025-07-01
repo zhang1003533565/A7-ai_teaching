@@ -53,6 +53,13 @@ import AIChatWriting from '../views/ai/AIChatWriting.vue'
 import AIChatAnalysis from '../views/ai/AIChatAnalysis.vue'
 import AIChatHistory from '../views/ai/AIChatHistory.vue'
 
+// AI批改相关组件
+import GradingOverview from '../views/ai/grading/GradingOverview.vue'
+import GradingHomework from '../views/ai/grading/GradingHomework.vue'
+import GradingExam from '../views/ai/grading/GradingExam.vue'
+import GradingCode from '../views/ai/grading/GradingCode.vue'
+import GradingTemplate from '../views/ai/grading/GradingTemplate.vue'
+
 const routes = [
   {
     path: '/',
@@ -374,6 +381,32 @@ const routes = [
         path: 'ai/history',
         name: 'ai-chat-history',
         component: AIChatHistory
+      },
+      // AI批改相关路由
+      {
+        path: 'ai/grading/overview',
+        name: 'ai-grading-overview',
+        component: GradingOverview
+      },
+      {
+        path: 'ai/grading/homework',
+        name: 'ai-grading-homework',
+        component: GradingHomework
+      },
+      {
+        path: 'ai/grading/exam',
+        name: 'ai-grading-exam',
+        component: GradingExam
+      },
+      {
+        path: 'ai/grading/code',
+        name: 'ai-grading-code',
+        component: GradingCode
+      },
+      {
+        path: 'ai/grading/template',
+        name: 'ai-grading-template',
+        component: GradingTemplate
       }
     ]
   },

@@ -391,7 +391,39 @@ const menuGroups = reactive([
         key: 'ai-grading',
         name: '智能批改',
         icon: 'fas fa-magic',
-        path: '/ai/grading'
+        expanded: false,
+        children: [
+          {
+            key: 'ai-grading-overview',
+            name: '批改概览',
+            icon: 'fas fa-tachometer-alt',
+            path: '/dashboard/ai/grading/overview'
+          },
+          {
+            key: 'ai-grading-homework',
+            name: '作业批改',
+            icon: 'fas fa-tasks',
+            path: '/dashboard/ai/grading/homework'
+          },
+          {
+            key: 'ai-grading-exam',
+            name: '试卷批改',
+            icon: 'fas fa-file-alt',
+            path: '/dashboard/ai/grading/exam'
+          },
+          {
+            key: 'ai-grading-code',
+            name: '代码评审',
+            icon: 'fas fa-code',
+            path: '/dashboard/ai/grading/code'
+          },
+          {
+            key: 'ai-grading-template',
+            name: '批改模板',
+            icon: 'fas fa-copy',
+            path: '/dashboard/ai/grading/template'
+          }
+        ]
       },
       {
         key: 'ai-recommend',
