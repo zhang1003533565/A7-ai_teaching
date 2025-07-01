@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 面包屑导航 -->
-    <div class="mb-6 flex items-center text-sm text-gray-500">
+    <div class="mb-4 flex items-center text-sm text-gray-500">
       <span class="cursor-pointer hover:text-blue-600" @click="$router.push('/dashboard')">首页</span>
       <i class="fas fa-chevron-right mx-2 text-xs"></i>
       <span class="cursor-pointer hover:text-blue-600" @click="$router.push('/system/permission')">权限管理</span>
@@ -9,35 +9,11 @@
       <span class="text-gray-700">菜单分配管理</span>
     </div>
 
-    <!-- 页面标题和操作按钮 -->
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">菜单分配管理</h1>
-        <p class="text-gray-600 mt-1">管理系统菜单权限的分配</p>
-      </div>
-      <div class="flex space-x-3">
-        <button 
-          @click="showAddDialog = true"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-        >
-          <i class="fas fa-plus mr-2"></i>
-          新增菜单
-        </button>
-        <button 
-          @click="refreshMenus"
-          class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-        >
-          <i class="fas fa-sync-alt mr-2"></i>
-          刷新
-        </button>
-      </div>
-    </div>
-
-    <!-- 搜索和筛选 -->
-    <div class="mb-6 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">菜单名称</label>
+    <!-- 操作按钮和搜索栏 -->
+    <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-200 mb-4">
+      <div class="flex flex-wrap items-center gap-4">
+        <!-- 搜索输入框 -->
+        <div class="flex-1 min-w-[200px] max-w-[300px]">
           <input 
             v-model="searchForm.name"
             type="text" 
@@ -45,8 +21,9 @@
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">菜单类型</label>
+
+        <!-- 菜单类型选择 -->
+        <div class="w-[150px]">
           <select 
             v-model="searchForm.type"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -57,8 +34,9 @@
             <option value="3">接口</option>
           </select>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+
+        <!-- 状态选择 -->
+        <div class="w-[150px]">
           <select 
             v-model="searchForm.status"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -68,25 +46,40 @@
             <option value="0">禁用</option>
           </select>
         </div>
-      </div>
-      <div class="mt-4 flex justify-end">
-        <button 
-          @click="searchMenus"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          搜索
-        </button>
+
+        <!-- 操作按钮 -->
+        <div class="flex gap-2">
+          <button 
+            @click="searchMenus"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            搜索
+          </button>
+          <button 
+            @click="showAddDialog = true"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center"
+          >
+            <i class="fas fa-plus mr-2"></i>
+            新增
+          </button>
+          <button 
+            @click="refreshMenus"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+          >
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- 菜单树表格 -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col">
       <div class="px-6 py-4 border-b border-gray-200">
         <h2 class="text-lg font-semibold text-gray-900">菜单列表</h2>
       </div>
-      <div class="overflow-x-auto">
+      <div class="overflow-auto" style="max-height: calc(100vh - 400px);">
         <table class="w-full">
-          <thead class="bg-gray-50">
+          <thead class="bg-gray-50 sticky top-0 z-10">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">菜单名称</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">图标</th>
@@ -94,7 +87,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">路由路径</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排序</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">操作</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -225,13 +218,16 @@
     </div>
 
     <!-- 新增/编辑菜单对话框 -->
-    <div v-if="showAddDialog || showEditDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">
-          {{ showAddDialog ? '新增菜单' : '编辑菜单' }}
-        </h3>
-        <form @submit.prevent="submitForm">
-          <div class="space-y-4">
+    <div v-if="showAddDialog || showEditDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg w-full max-w-md max-h-[90vh] flex flex-col">
+        <div class="p-6 border-b">
+          <h3 class="text-lg font-semibold text-gray-900">
+            {{ showAddDialog ? '新增菜单' : '编辑菜单' }}
+          </h3>
+        </div>
+        
+        <div class="p-6 overflow-y-auto flex-1">
+          <form @submit.prevent="submitForm" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">上级菜单</label>
               <select v-model="menuForm.parentId" class="w-full px-3 py-2 border border-gray-300 rounded-md">
@@ -288,17 +284,17 @@
                 <option value="0">禁用</option>
               </select>
             </div>
-          </div>
-          
-          <div class="mt-6 flex justify-end space-x-3">
-            <button type="button" @click="cancelForm" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
-              取消
-            </button>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              {{ showAddDialog ? '新增' : '保存' }}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
+
+        <div class="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+          <button type="button" @click="cancelForm" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+            取消
+          </button>
+          <button @click="submitForm" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            {{ showAddDialog ? '新增' : '保存' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
