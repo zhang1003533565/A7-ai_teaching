@@ -9,67 +9,64 @@
       <span class="text-gray-700">角色管理</span>
     </div>
 
-    <!-- 页面标题和操作按钮 -->
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">角色管理</h1>
-        <p class="text-gray-600 mt-1">管理系统角色和权限配置</p>
-      </div>
-      <div class="flex space-x-3">
-        <button 
-          @click="showAddDialog = true"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-        >
-          <i class="fas fa-plus mr-2"></i>
-          新增角色
-        </button>
-        <button 
-          @click="refreshRoles"
-          class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-        >
-          <i class="fas fa-sync-alt mr-2"></i>
-          刷新
-        </button>
-      </div>
-    </div>
-
     <!-- 搜索和筛选 -->
     <div class="mb-6 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">角色名称</label>
-          <input 
-            v-model="searchForm.roleName"
-            type="text" 
-            placeholder="搜索角色名称"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">角色编码</label>
-          <input 
-            v-model="searchForm.roleCode"
-            type="text" 
-            placeholder="搜索角色编码"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
-          <select 
-            v-model="searchForm.status"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      <div class="flex items-center justify-between gap-4">
+        <!-- 操作按钮 -->
+        <div class="flex space-x-3">
+          <button 
+            @click="showAddDialog = true"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
           >
-            <option value="">全部状态</option>
-            <option value="1">启用</option>
-            <option value="0">禁用</option>
-          </select>
+            <i class="fas fa-plus mr-2"></i>
+            新增角色
+          </button>
+          <button 
+            @click="refreshRoles"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            <i class="fas fa-sync-alt mr-2"></i>
+            刷新
+          </button>
         </div>
-      </div>
-      <div class="mt-4 flex justify-end">
+
+        <!-- 搜索表单 -->
+        <div class="flex-1 grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">角色名称</label>
+            <input 
+              v-model="searchForm.roleName"
+              type="text" 
+              placeholder="搜索角色名称"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">角色编码</label>
+            <input 
+              v-model="searchForm.roleCode"
+              type="text" 
+              placeholder="搜索角色编码"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+            <select 
+              v-model="searchForm.status"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">全部状态</option>
+              <option value="1">启用</option>
+              <option value="0">禁用</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 搜索按钮 -->
         <button 
           @click="searchRoles"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors self-end"
         >
           搜索
         </button>
