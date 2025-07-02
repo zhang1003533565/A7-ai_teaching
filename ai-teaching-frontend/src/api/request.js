@@ -6,9 +6,6 @@ import config from '@/config/env.config'
 const service = axios.create({
   baseURL: config.baseUrl,
   timeout: config.timeout,
-  headers: {
-    'Content-Type': 'application/json;charset=utf-8'
-  },
   // 允许跨域携带cookie
   withCredentials: true
 })
@@ -21,6 +18,12 @@ service.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
+    
+    // 如果没有设置 Content-Type，则设置默认值
+    if (!config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json;charset=utf-8'
+    }
+    
     console.log('请求配置：', config);
     return config
   },

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -48,4 +49,45 @@ public class User {
      */
     @TableField(exist = false)
     private List<Role> roles;
+
+    // 扩展的个人信息字段
+    private String school;
+    
+    private String college;
+    
+    private String major;
+    
+    @TableField("class_name")
+    private String className;
+    
+    @TableField("student_number")
+    private String studentNumber;
+    
+    private Integer age;
+    
+    @TableField("birth_date")
+    private LocalDate birthDate;
+    
+    private String gender;
+    
+    @TableField("id_card")
+    private String idCard;
+    
+    private String nation;
+    
+    @TableField("political_status")
+    private String politicalStatus;
+    
+    @TableField("entry_year")
+    private Integer entryYear;
+    
+    private Integer grade;
+    
+    private String address;
+    
+    @TableField("emergency_contact")
+    private String emergencyContact;
+    
+    @TableField("emergency_phone")
+    private String emergencyPhone;
 } 

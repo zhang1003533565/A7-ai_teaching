@@ -60,10 +60,29 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("账号已被禁用");
         }
 
-        // 4. 使用用户表中的role字段
+        // 4. 检查用户角色
+        List<Role> roles = roleMapper.selectRolesByUserId(user.getId());
+        if (roles == null || roles.isEmpty()) {
+            // 如果用户没有角色，根据user.role字段分配默认角色
+            LambdaQueryWrapper<Role> roleWrapper = new LambdaQueryWrapper<>();
+            roleWrapper.eq(Role::getRoleCode, user.getRole().toLowerCase())
+                      .eq(Role::getIsDeleted, 0);
+            Role defaultRole = roleMapper.selectOne(roleWrapper);
+            
+            if (defaultRole != null) {
+                // 为用户分配默认角色
+                UserRole userRole = new UserRole();
+                userRole.setUserId(user.getId());
+                userRole.setRoleId(defaultRole.getId());
+                userRoleMapper.insert(userRole);
+                roles = Collections.singletonList(defaultRole);
+            }
+        }
+
+        // 5. 使用用户表中的role字段
         String role = user.getRole().toLowerCase();
 
-        // 5. 生成token
+        // 6. 生成token
         String token = Jwts.builder()
                 .setSubject(user.getId().toString())
                 .claim("role", role)
@@ -72,7 +91,7 @@ public class UserServiceImpl implements UserService {
                 .signWith(SignatureAlgorithm.HS256, "your-secret-key")
                 .compact();
 
-        // 6. 返回登录响应
+        // 7. 返回登录响应
         return new LoginResponse()
                 .setId(user.getId())
                 .setToken(token)
@@ -169,6 +188,11 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         User user = userMapper.selectById(id);
         Assert.notNull(user, "用户不存在");
+        
+        // 加载用户的角色信息
+        List<Role> roles = roleMapper.selectRolesByUserId(id);
+        user.setRoles(roles);
+        
         return user;
     }
 
